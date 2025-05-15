@@ -1,36 +1,76 @@
-﻿using Duende.IdentityServer.Models;
+﻿using Duende.IdentityServer;
+using Duende.IdentityServer.Models;
 
 namespace Identity.API;
 
 public static class Config
 {
     public static IEnumerable<IdentityResource> IdentityResources =>
-        new IdentityResource[]
+        new List<IdentityResource>
         {
             new IdentityResources.OpenId(),
             new IdentityResources.Profile(),
+            new IdentityResources.Email(),
+            new IdentityResource("roles", "User roles", new[] { "role" })
         };
 
     public static IEnumerable<ApiScope> ApiScopes =>
-        new ApiScope[]
+        new List<ApiScope>
         {
-            new ApiScope("scope1"),
-            new ApiScope("scope2"),
+            new ApiScope("catalog.api", "Catalog API"),
+            new ApiScope("basket.api", "Basket API"),
+            new ApiScope("discount.api", "Discount API"),
+            new ApiScope("ordering.api", "Ordering API")
+        };
+
+    public static IEnumerable<ApiResource> ApiResources =>
+        new List<ApiResource>
+        {
+            new ApiResource("catalog.api", "Catalog API")
+            {
+                Scopes = { "catalog.api" }
+            },
+            new ApiResource("basket.api", "Basket API")
+            {
+                Scopes = { "basket.api" }
+            },
+            new ApiResource("discount.api", "Discount API")
+            {
+                Scopes = { "discount.api" }
+            },
+            new ApiResource("ordering.api", "Ordering API")
+            {
+                Scopes = { "ordering.api" }
+            }
         };
 
     public static IEnumerable<Client> Clients =>
         new Client[]
         {
-            // m2m client credentials flow client
-            new Client
+           new Client
             {
-                ClientId = "m2m.client",
-                ClientName = "Client Credentials Client",
+                ClientId = "shopping.web",
+                ClientName = "Shopping Web App",
+                AllowedGrantTypes = GrantTypes.Code,
+                RequireClientSecret = false,
+                RequirePkce = true,
 
-                AllowedGrantTypes = GrantTypes.ClientCredentials,
-                ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
+                RedirectUris = { "https://localhost:6065/signin-oidc" },
+                PostLogoutRedirectUris = { "https://localhost:6065/signout-callback-oidc" },
+                AllowedCorsOrigins = { "https://localhost:6065" },
 
-                AllowedScopes = { "scope1" }
+                AllowOfflineAccess = true,
+                AllowedScopes =
+                {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    IdentityServerConstants.StandardScopes.Email,
+                    "roles",
+                    "catalog.api",
+                    "basket.api",
+                    "discount.api",
+                    "ordering.api"
+                }
             },
 
             // interactive client using code flow + pkce
