@@ -12,6 +12,4 @@ public class ProductModel
 
 public record GerProductsResponse(IEnumerable<ProductModel> Products);
 public record GerProductsByCategoryResponse(IEnumerable<ProductModel> Products);
-public record GerProductsByIdResponse(ProductModel Products);
-
-
+public record GerProductsByIdResponse(ProductModel Product);

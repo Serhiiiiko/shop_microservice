@@ -2,10 +2,10 @@ version: '3.4'
 
 services:
   catalogdb:
-    image: postgres
+    image: postgres:16
 
   basketdb:
-    image: postgres
+    image: postgres:16
 
   distributedcache:
     image: redis
@@ -32,6 +32,7 @@ services:
 
   discount.grpc:
     image: ${DOCKER_REGISTRY-}discountgrpc
+    container_name: discountgrpc
     build:
       context: .
       dockerfile: Services/Discount/Discount.gRPC/Dockerfile
@@ -49,8 +50,12 @@ services:
       context: .
       dockerfile: ApiGateways/YarpApiGateway/Dockerfile
 
+  shopping.web:
+    image: ${DOCKER_REGISTRY-}shoppingweb
+    build:
+      context: .
+      dockerfile: WebApps/Shopping.Web/Dockerfile
+
 volumes:
   postgres_catalog:
-  postgres_basket:  
-
-
+  postgres_basket:

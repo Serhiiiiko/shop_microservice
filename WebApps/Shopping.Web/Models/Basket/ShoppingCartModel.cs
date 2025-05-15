@@ -19,4 +19,4 @@ public class ShoppingCartItemModel
 public record GetBasketResponse(ShoppingCartModel Cart);
 public record StoreBasketRequest(ShoppingCartModel Cart);
 public record StoreBasketResponse(string UserName);
-public record DeleteBasketRequest(bool isSuccess);
+public record DeleteBasketResponse(bool isSuccess);
