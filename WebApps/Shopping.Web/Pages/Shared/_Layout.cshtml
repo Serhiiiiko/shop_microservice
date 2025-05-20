@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Shopping.Web.Services
+@inject IBasketService BasketService
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -13,8 +16,14 @@
 
 </head>
 <body>
+    @{
+        // Get cart count asynchronously
+        var cartTask = BasketService.LoadUserBasket();
+        // Using GetAwaiter().GetResult() because we can't use await in a code block directly in Razor
+        var cart = cartTask.GetAwaiter().GetResult();
+        var itemCount = cart.Items.Count;
+    }
     <header>
-
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">AspnetRunBasics</a>
@@ -56,7 +65,7 @@
                         </div>
                         <a class="btn btn-success btn-sm ml-3" asp-area="" asp-page="/Cart">
                             <i class="fa fa-shopping-cart"></i> Cart
-                            <span class="badge badge-light">3</span>
+                            <span class="badge badge-light">@itemCount</span>
                         </a>
                     </form>
                 </div>
@@ -178,5 +187,3 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
-
-
