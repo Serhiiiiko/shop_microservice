@@ -1,0 +1,52 @@
+﻿@page "{id:guid}"
+@model Shopping.Web.Pages.Admin.Products.EditModel
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<div class="container">
+    <h2>Edit Product</h2>
+
+    <form method="post">
+        <input type="hidden" asp-for="Product.Id" />
+
+        <div class="form-group">
+            <label asp-for="Product.Name">Product Name</label>
+            <input asp-for="Product.Name" class="form-control" />
+            <span asp-validation-for="Product.Name" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Product.Description">Description</label>
+            <textarea asp-for="Product.Description" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Product.Description" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Product.Price">Price</label>
+            <input asp-for="Product.Price" class="form-control" />
+            <span asp-validation-for="Product.Price" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Product.Category">Categories (comma-separated)</label>
+            <input asp-for="Product.Category" class="form-control" placeholder="e.g. Smart Phone, Electronics" />
+            <span asp-validation-for="Product.Category" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Product.ImageFilePath">Image File Name</label>
+            <input asp-for="Product.ImageFilePath" class="form-control" />
+            <span asp-validation-for="Product.ImageFilePath" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
