@@ -50,7 +50,7 @@ namespace Shopping.Web.Pages.Admin.Products
                 Description = product.Description,
                 Price = product.Price,
                 Category = string.Join(", ", product.Category),
-                ImageFilePath = product.ImageFile
+                ImageFilePath = product.ImageFilePath // Исправлено с ImageFile на ImageFilePath
             };
 
             return Page();
@@ -74,7 +74,7 @@ namespace Shopping.Web.Pages.Admin.Products
                 Product.Name,
                 Product.Description,
                 categories,
-                Product.ImageFilePath
+                Product.ImageFilePath // Исправлено с ImageFile на ImageFilePath
             );
 
             await _catalogService.UpdateProduct(updateRequest);

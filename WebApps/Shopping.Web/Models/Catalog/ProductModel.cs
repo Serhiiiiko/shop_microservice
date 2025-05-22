@@ -1,4 +1,5 @@
-﻿namespace Shopping.Web.Models.Catalog;
+﻿// WebApps/Shopping.Web/Models/Catalog/ProductModel.cs
+namespace Shopping.Web.Models.Catalog;
 
 public class ProductModel
 {
@@ -6,8 +7,11 @@ public class ProductModel
     public string Name { get; set; } = default!;
     public string Description { get; set; } = default!;
     public decimal Price { get; set; }
-    public string ImageFile { get; set; } = default!;
+    public string ImageFilePath { get; set; } = default!; // Изменено с ImageFile на ImageFilePath
     public List<string> Category { get; set; } = new();
+
+    // Добавляем свойство для обратной совместимости
+    public string ImageFile => ImageFilePath;
 }
 
 public record GerProductsResponse(IEnumerable<ProductModel> Products);
