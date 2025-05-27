@@ -1,37 +1,25 @@
+using Catalog.API.Data;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using System.Diagnostics;
-using System.Diagnostics.Tracing;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var assembly = typeof(Program).Assembly;
+builder.Services.AddCarter();
 builder.Services.AddMediatR(config =>
 {
-    config.RegisterServicesFromAssembly(typeof(Program).Assembly);
+    config.RegisterServicesFromAssembly(assembly);
     config.AddOpenBehavior(typeof(ValidationBehavior<,>));
     config.AddOpenBehavior(typeof(LoggingBehavior<,>));
 });
 
-var listener = new ActivityListener
+builder.Services.AddValidatorsFromAssembly(assembly);
+
+builder.Services.AddMarten(opts =>
 {
-    ShouldListenTo = _ => true,
-    Sample = (ref ActivityCreationOptions<ActivityContext> _) => ActivitySamplingResult.AllData,
-    ActivityStarted = activity => Console.WriteLine($"Start: {activity.OperationName} - {activity.Id}"),
-    ActivityStopped = activity => Console.WriteLine($"Stop: {activity.OperationName} - {activity.Duration.TotalMilliseconds}ms")
-};
-ActivitySource.AddActivityListener(listener);
-
-// Додайте трасування для MediatR запитів
-builder.Services.AddSingleton<DiagnosticObserver>();
-
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-
-builder.Services.AddCarter();
-
-builder.Services.AddMarten(config =>
-{
-    config.Connection(builder.Configuration.GetConnectionString("PostGreDatabase")!);
+    opts.Connection(builder.Configuration.GetConnectionString("PostGreDatabase")!);
 }).UseLightweightSessions();
 
 if (builder.Environment.IsDevelopment())
@@ -42,9 +30,26 @@ builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 builder.Services.AddHealthChecks()
     .AddNpgSql(builder.Configuration.GetConnectionString("PostGreDatabase")!);
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = builder.Configuration["IdentityServer:Authority"];
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = false,
+            NameClaimType = "name",
+            RoleClaimType = "role"
+        };
+        options.RequireHttpsMetadata = false;
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
-var diagnosticObserver = app.Services.GetRequiredService<DiagnosticObserver>();
-diagnosticObserver.Start();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapCarter();
 
 app.UseExceptionHandler(options => { });

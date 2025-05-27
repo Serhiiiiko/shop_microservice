@@ -50,6 +50,20 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+  
+  identity.api:
+    container_name: identity.api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__DefaultConnection=Data Source=AspIdUsers.db;
+    ports:
+      - "5001:8081"
+      - "5000:8080"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
 
   catalog.api:
     environment:
@@ -57,8 +71,10 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
       - ConnectionStrings__PostGreDatabase=Host=catalogdb;Port=5432;Database=catalogDb;UserName=postgres;Password=postgres;Include Error Detail=true
+      - IdentityServer__Authority=https://identity.api:8081
     depends_on:
       - catalogdb
+      - identity.api
     ports:
       - "6000:8080"
       - "6060:8081"
@@ -77,11 +93,13 @@ services:
       - MessageBroker__Host=amqp://ecommerce-mq:5672
       - MessageBroker__UserName=guest
       - MessageBroker__Password=guest
+      - IdentityServer__Authority=https://identity.api:8081
     depends_on:
       - basketdb
       - distributedcache
       - discount.grpc
       - messagebroker
+      - identity.api
     ports:
       - "6001:8080"
       - "6061:8081"
@@ -112,9 +130,11 @@ services:
       - MessageBroker__UserName=guest
       - MessageBroker__Password=guest
       - FeatureManagement__OrderFullfilment=false
+      - IdentityServer__Authority=https://identity.api:8081
     depends_on:
       - orderdb
       - messagebroker
+      - identity.api
     ports:
       - "6003:8080"
       - "6063:8081"
@@ -144,8 +164,10 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
       - ApiSettings__GatewayAddress=http://yarpapigateway:8080
+      - IdentityServer__Authority=https://identity.api:8081
     depends_on:
       - yarpapigateway
+      - identity.api
     ports:
       - "6005:8080"
       - "6065:8081"

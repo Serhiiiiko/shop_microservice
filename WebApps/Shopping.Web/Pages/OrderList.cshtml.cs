@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace Shopping.Web.Pages
 {
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public class OrderListModel
         (IOrderingService orderingService, ILogger<OrderListModel> logger)
         : PageModel
@@ -8,8 +11,8 @@ namespace Shopping.Web.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // assumption customerId is passed in from the UI authenticated user swn
-            var customerId = new Guid("58c49479-ec65-4de2-86e7-033c546291aa");
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var customerId = Guid.Parse(userId ?? Guid.NewGuid().ToString());
 
             var response = await orderingService.GetOrdersByCustomer(customerId);
             Orders = response.Orders;

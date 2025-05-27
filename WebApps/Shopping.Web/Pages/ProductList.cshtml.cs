@@ -34,7 +34,7 @@ namespace Shopping.Web.Pages
             logger.LogInformation("Add to cart button clicked");
             var productResponse = await catalogService.GetProduct(productId);
 
-            var basket = await basketService.LoadUserBasket();
+            var basket = await basketService.LoadUserBasket(User);
 
             basket.Items.Add(new ShoppingCartItemModel
             {

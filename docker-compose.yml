@@ -16,6 +16,12 @@ services:
   messagebroker:
     image: rabbitmq:3-management
 
+  identity.api:
+    image: ${DOCKER_REGISTRY-}identityapi
+    build:
+      context: .
+      dockerfile: Services/Identity/Identity.API/Dockerfile
+
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
     container_name: catalogapi

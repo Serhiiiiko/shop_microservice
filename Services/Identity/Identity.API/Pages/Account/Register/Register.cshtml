@@ -1,0 +1,65 @@
+﻿@page
+@model Identity.API.Pages.Account.Register.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="register-page">
+    <div class="lead">
+        <h1>Create Account</h1>
+        <p>Create a new account to start shopping</p>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <partial name="_ValidationSummary" />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <form asp-page="/Account/Register/Register" method="post">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+
+                <div class="form-group">
+                    <label asp-for="Input.Username"></label>
+                    <input class="form-control" asp-for="Input.Username" autofocus>
+                    <span asp-validation-for="Input.Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Email"></label>
+                    <input class="form-control" asp-for="Input.Email">
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.FirstName"></label>
+                    <input class="form-control" asp-for="Input.FirstName">
+                    <span asp-validation-for="Input.FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.LastName"></label>
+                    <input class="form-control" asp-for="Input.LastName">
+                    <span asp-validation-for="Input.LastName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Password"></label>
+                    <input type="password" class="form-control" asp-for="Input.Password" autocomplete="off">
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.ConfirmPassword"></label>
+                    <input type="password" class="form-control" asp-for="Input.ConfirmPassword" autocomplete="off">
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <button class="btn btn-primary" type="submit">Register</button>
+                <a class="btn btn-secondary" asp-page="/Account/Login/Index" asp-route-returnUrl="@Model.Input.ReturnUrl">Login</a>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,26 +1,32 @@
+using Microsoft.AspNetCore.Authorization;
+
 namespace Shopping.Web.Pages;
 public class IndexModel
     (ICatalogService catalogService, IBasketService basketService, ILogger<IndexModel> logger)
     : PageModel
-{    
-    public IEnumerable<ProductModel> ProductList { get; set; } = new List<ProductModel>();    
+{
+    public IEnumerable<ProductModel> ProductList { get; set; } = new List<ProductModel>();
 
     public async Task<IActionResult> OnGetAsync()
     {
         logger.LogInformation("Index page visited");
         var result = await catalogService.GetProducts();
-        //var result = await catalogService.GetProducts(2, 3);
         ProductList = result.Products;
         return Page();
     }
 
+    [Microsoft.AspNetCore.Authorization.Authorize]
     public async Task<IActionResult> OnPostAddToCartAsync(Guid productId)
     {
+        if (!User.Identity?.IsAuthenticated ?? true)
+        {
+            return RedirectToPage("/Account/Login", new { returnUrl = Request.Path });
+        }
+
         logger.LogInformation("Add to cart button clicked");
 
         var productResponse = await catalogService.GetProduct(productId);
-
-        var basket = await basketService.LoadUserBasket();
+        var basket = await basketService.LoadUserBasket(User);
 
         basket.Items.Add(new ShoppingCartItemModel
         {
@@ -32,7 +38,7 @@ public class IndexModel
         });
 
         await basketService.StoreBasket(new StoreBasketRequest(basket));
-        
+
         return RedirectToPage("Cart");
-    }    
+    }
 }
