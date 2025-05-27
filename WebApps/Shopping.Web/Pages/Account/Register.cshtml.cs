@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 
 namespace Shopping.Web.Pages.Account;
 
@@ -14,10 +14,12 @@ public class RegisterModel : PageModel
 
     public IActionResult OnGet(string returnUrl = "/")
     {
-        // Используем PublicAuthority для внешних редиректов
-        var publicAuthority = _configuration["IdentityServer:PublicAuthority"]
-            ?? _configuration["IdentityServer:Authority"];
+        // Redirect directly to Identity Server's registration page
+        var identityServerUrl = _configuration["IdentityServer:Authority"];
+        var publicUrl = _configuration["IdentityServer:PublicAuthority"] ?? identityServerUrl;
 
-        return Redirect($"{publicAuthority}/Account/Register?returnUrl={Uri.EscapeDataString($"{Request.Scheme}://{Request.Host}/signin-oidc")}");
+        var registerUrl = $"{publicUrl}/Account/Register/Register?returnUrl={Uri.EscapeDataString(returnUrl)}";
+
+        return Redirect(registerUrl);
     }
 }
