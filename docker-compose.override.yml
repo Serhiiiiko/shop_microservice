@@ -165,6 +165,7 @@ services:
       - ASPNETCORE_HTTPS_PORTS=8081
       - ApiSettings__GatewayAddress=http://yarpapigateway:8080
       - IdentityServer__Authority=https://identity.api:8081
+      - IdentityServer__PublicAuthority=https://localhost:5001
     depends_on:
       - yarpapigateway
       - identity.api

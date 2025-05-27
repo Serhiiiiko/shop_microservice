@@ -36,6 +36,23 @@ builder.Services.AddAuthentication(options =>
         NameClaimType = "name",
         RoleClaimType = "role"
     };
+
+    options.Events = new Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents
+    {
+        OnRedirectToIdentityProvider = context =>
+        {
+            var publicAuthority = builder.Configuration["IdentityServer:PublicAuthority"]
+                ?? builder.Configuration["IdentityServer:Authority"];
+
+            if (!string.IsNullOrEmpty(publicAuthority))
+            {
+                context.ProtocolMessage.IssuerAddress =
+                    context.ProtocolMessage.IssuerAddress.Replace(options.Authority, publicAuthority);
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddTransient<AuthenticationDelegatingHandler>();

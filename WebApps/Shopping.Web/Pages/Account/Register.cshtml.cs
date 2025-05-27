@@ -5,10 +5,19 @@ namespace Shopping.Web.Pages.Account;
 
 public class RegisterModel : PageModel
 {
-    public IActionResult OnGet(string returnUrl = "/")
+    private readonly IConfiguration _configuration;
+
+    public RegisterModel(IConfiguration configuration)
     {
-        return Redirect($"{Configuration["IdentityServer:Authority"]}/Account/Register?returnUrl={Uri.EscapeDataString($"{Request.Scheme}://{Request.Host}/signin-oidc")}");
+        _configuration = configuration;
     }
 
-    private IConfiguration Configuration => HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+    public IActionResult OnGet(string returnUrl = "/")
+    {
+        // Используем PublicAuthority для внешних редиректов
+        var publicAuthority = _configuration["IdentityServer:PublicAuthority"]
+            ?? _configuration["IdentityServer:Authority"];
+
+        return Redirect($"{publicAuthority}/Account/Register?returnUrl={Uri.EscapeDataString($"{Request.Scheme}://{Request.Host}/signin-oidc")}");
+    }
 }
