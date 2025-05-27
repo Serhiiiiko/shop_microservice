@@ -1,21 +1,253 @@
 ﻿@model Models.Catalog.ProductModel
 
-<div class="card">
-    <a asp-page="ProductDetail" asp-route-productId="@Model.Id"><img asp-append-version="true" class="card-img-top" src="~/images/product/@Model.ImageFile" alt=""></a>
-    <div class="card-body">
-        <h4 class="card-title"><a asp-page="ProductDetail" asp-route-productId="@Model.Id" class="color-main">@Model.Name</a></h4>
-        <p class="card-text">@Model.Description</p>
-        <div class="row">
-            <div class="col">
-                <!-- ИСПРАВЛЕНИЕ: Изменил <p> на <a> для кнопки с ценой -->
-                <a asp-page="ProductDetail" asp-route-productId="@Model.Id" class="btn btn-danger btn-block">@Model.Price $</a>
+<div class="card product-card" data-aos="fade-up">
+    <div class="product-image-wrapper">
+        <a asp-page="ProductDetail" asp-route-productId="@Model.Id">
+            <img asp-append-version="true" class="card-img-top" src="~/images/product/@Model.ImageFile" alt="@Model.Name">
+            <div class="product-overlay">
+                <span class="view-product">
+                    <i class="fa fa-eye"></i> Quick View
+                </span>
             </div>
-            <div class="col">
-                <form asp-page-handler="AddToCart" method="post" name="addToCartForm" id="add_cart_form">
-                    <a href="javascript:;" onclick="parentNode.submit();" class="btn btn-success btn-block">Add to Cart</a>
+        </a>
+        <div class="product-badges">
+            @if (Model.Price < 500)
+            {
+                <span class="badge badge-success">Sale</span>
+            }
+            <span class="badge badge-primary">New</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="product-category">
+            @foreach (var category in Model.Category.Take(1))
+            {
+                <span class="category-tag">@category</span>
+            }
+        </div>
+        <h4 class="card-title">
+            <a asp-page="ProductDetail" asp-route-productId="@Model.Id" class="product-name">@Model.Name</a>
+        </h4>
+        <div class="rating mb-2">
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star"></i>
+            <i class="fa fa-star-half-o"></i>
+            <span class="rating-count">(4.5)</span>
+        </div>
+        <p class="card-text">@Model.Description</p>
+        <div class="product-footer">
+            <div class="price-wrapper">
+                <span class="product-price">$@Model.Price</span>
+                <span class="original-price">$@(Model.Price + 100)</span>
+            </div>
+            <div class="action-buttons">
+                <form asp-page-handler="AddToCart" method="post" class="add-to-cart-form">
+                    <button type="submit" class="btn btn-primary btn-add-cart" title="Add to Cart">
+                        <i class="fa fa-shopping-cart"></i>
+                    </button>
                     <input type="hidden" asp-for="@Model.Id" name="productId" />
                 </form>
+                <button class="btn btn-outline-primary btn-wishlist" title="Add to Wishlist">
+                    <i class="fa fa-heart-o"></i>
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    /* Enhanced Product Card Styles */
+    .product-card {
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+
+    .product-image-wrapper {
+        position: relative;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+
+    .product-card .card-img-top {
+        height: 280px;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .product-card:hover .product-overlay {
+        opacity: 1;
+    }
+
+    .product-card:hover .card-img-top {
+        transform: scale(1.1);
+    }
+
+    .view-product {
+        color: white;
+        font-weight: 600;
+        padding: 10px 20px;
+        background: var(--primary-color);
+        border-radius: 25px;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+    }
+
+    .product-card:hover .view-product {
+        transform: translateY(0);
+    }
+
+    .product-badges {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 10;
+    }
+
+        .product-badges .badge {
+            margin-right: 5px;
+            padding: 5px 10px;
+            font-size: 0.75rem;
+        }
+
+    .product-category {
+        margin-bottom: 8px;
+    }
+
+    .category-tag {
+        font-size: 0.75rem;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .product-name {
+        color: var(--text-primary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        font-size: 1.1rem;
+        font-weight: 600;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+        .product-name:hover {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+    .rating {
+        color: #ffc107;
+        font-size: 0.9rem;
+    }
+
+    .rating-count {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        margin-left: 5px;
+    }
+
+    .product-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+
+    .price-wrapper {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .original-price {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        text-decoration: line-through;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-add-cart,
+    .btn-wishlist {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: all 0.3s ease;
+    }
+
+    .btn-wishlist {
+        background: white;
+        border: 2px solid #e5e7eb;
+        color: var(--text-secondary);
+    }
+
+        .btn-wishlist:hover {
+            background: var(--danger-color);
+            border-color: var(--danger-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+            .btn-wishlist:hover i::before {
+                content: "\f004"; /* Heart filled icon */
+            }
+
+    .btn-add-cart:hover {
+        transform: scale(1.1) rotate(10deg);
+    }
+
+    .add-to-cart-form {
+        display: inline;
+    }
+
+    /* Card text styling */
+    .card-text {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+</style>
