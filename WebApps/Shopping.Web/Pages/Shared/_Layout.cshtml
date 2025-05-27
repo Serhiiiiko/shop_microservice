@@ -19,9 +19,13 @@
 </head>
 <body>
     @{
-        var cartTask = BasketService.LoadUserBasket(User);
-        var cart = cartTask.GetAwaiter().GetResult();
-        var itemCount = cart.Items.Count;
+        var itemCount = 0;
+        if (User.Identity?.IsAuthenticated ?? false)
+        {
+            var cartTask = BasketService.LoadUserBasket(User);
+            var cart = cartTask.GetAwaiter().GetResult();
+            itemCount = cart.Items.Count;
+        }
     }
 
     <header>
