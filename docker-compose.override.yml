@@ -64,6 +64,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - dataprotection-keys:/home/app/.aspnet/DataProtection-Keys
 
   catalog.api:
     environment:
@@ -175,3 +176,4 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - dataprotection-keys:/home/app/.aspnet/DataProtection-Keys

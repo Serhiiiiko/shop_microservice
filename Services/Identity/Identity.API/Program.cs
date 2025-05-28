@@ -1,5 +1,6 @@
 ﻿using Identity.API;
 using Identity.API.Data;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -18,6 +19,10 @@ try
         .Enrich.FromLogContext()
         .ReadFrom.Configuration(ctx.Configuration));
 
+    builder.Services.AddDataProtection()
+        .PersistKeysToFileSystem(new DirectoryInfo("/home/app/.aspnet/DataProtection-Keys"))
+        .SetApplicationName("EShopOnContainers");
+
     var app = builder
         .ConfigureServices()
         .ConfigurePipeline();
@@ -28,9 +33,6 @@ try
         {
             var context = services.GetRequiredService<ApplicationDbContext>();
             await context.Database.MigrateAsync();
-
-            // Опционально: добавить seed данные
-            // await SeedData.Initialize(services);
         }
         catch (Exception ex)
         {
@@ -38,8 +40,7 @@ try
             logger.LogError(ex, "An error occurred while migrating the database.");
         }
     }
-    // this seeding is only for the template to bootstrap the DB and users.
-    // in production you will likely want a different approach.
+
     if (args.Contains("/seed"))
     {
         Log.Information("Seeding database...");
