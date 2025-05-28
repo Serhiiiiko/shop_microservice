@@ -90,7 +90,8 @@ builder.Services.AddRefitClient<IBasketService>()
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:GatewayAddress"]!);
     })
     .AddHttpMessageHandler<AuthenticationDelegatingHandler>();
-
+builder.Services.AddTransient<AuthenticationDelegatingHandler>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddRefitClient<IOrderingService>()
     .ConfigureHttpClient(c =>
     {

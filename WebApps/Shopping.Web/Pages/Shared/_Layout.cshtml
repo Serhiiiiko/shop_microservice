@@ -22,9 +22,22 @@
         var itemCount = 0;
         if (User.Identity?.IsAuthenticated ?? false)
         {
-            var cartTask = BasketService.LoadUserBasket(User);
-            var cart = cartTask.GetAwaiter().GetResult();
-            itemCount = cart.Items.Count;
+            try
+            {
+                var cartTask = BasketService.LoadUserBasket(User);
+                var cart = cartTask.GetAwaiter().GetResult();
+                itemCount = cart.Items.Count;
+            }
+            catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                // Handle unauthorized gracefully - user might be logged in to web but token expired
+                itemCount = 0;
+            }
+            catch
+            {
+                // Handle other errors gracefully
+                itemCount = 0;
+            }
         }
     }
 
