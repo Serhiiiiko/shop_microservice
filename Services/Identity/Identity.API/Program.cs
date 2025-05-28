@@ -1,4 +1,6 @@
 ﻿using Identity.API;
+using Identity.API.Data;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -19,7 +21,23 @@ try
     var app = builder
         .ConfigureServices()
         .ConfigurePipeline();
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        try
+        {
+            var context = services.GetRequiredService<ApplicationDbContext>();
+            await context.Database.MigrateAsync();
 
+            // Опционально: добавить seed данные
+            // await SeedData.Initialize(services);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while migrating the database.");
+        }
+    }
     // this seeding is only for the template to bootstrap the DB and users.
     // in production you will likely want a different approach.
     if (args.Contains("/seed"))

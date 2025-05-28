@@ -13,6 +13,18 @@ internal static class HostingExtensions
     {
         builder.Services.AddRazorPages();
 
+        // Добавляем CORS
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("default", policy =>
+            {
+                policy.WithOrigins("https://localhost:6065", "http://localhost:6005")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
+
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -35,7 +47,7 @@ internal static class HostingExtensions
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryClients(Config.Clients)
             .AddAspNetIdentity<ApplicationUser>();
-        
+
         builder.Services.AddAuthentication()
             .AddGoogle(options =>
             {
@@ -50,7 +62,7 @@ internal static class HostingExtensions
 
         return builder.Build();
     }
-    
+
     public static WebApplication ConfigurePipeline(this WebApplication app)
     { 
         app.UseSerilogRequestLogging();

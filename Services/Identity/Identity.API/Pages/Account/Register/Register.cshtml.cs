@@ -67,7 +67,7 @@ public class RegisterModel : PageModel
     {
         Input = new InputModel
         {
-            ReturnUrl = returnUrl
+            ReturnUrl = returnUrl ?? Url.Content("~/")
         };
         return Page();
     }
