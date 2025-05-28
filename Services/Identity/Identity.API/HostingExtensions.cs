@@ -41,8 +41,9 @@ internal static class HostingExtensions
             .AddInMemoryClients(Config.Clients)
             .AddAspNetIdentity<ApplicationUser>()
             // Use developer signing credential instead of key management
-            // This creates temporary keys in memory - no file permissions needed!
-            .AddDeveloperSigningCredential();
+            // Pass 'false' to disable key persistence to file
+            // This creates temporary keys in memory only - no file permissions needed!
+            .AddDeveloperSigningCredential(persistKey: false);
 
         builder.Services.AddAuthentication();
 

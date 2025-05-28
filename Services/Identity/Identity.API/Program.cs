@@ -57,8 +57,8 @@ try
         .AddInMemoryClients(Config.Clients)
         .AddAspNetIdentity<ApplicationUser>()
         // Use developer signing credential - creates temporary keys in memory
-        // No file permissions needed!
-        .AddDeveloperSigningCredential();
+        // Pass 'false' to disable key persistence - no file permissions needed!
+        .AddDeveloperSigningCredential(persistKey: false);
 
     builder.Services.AddAuthentication();
 
