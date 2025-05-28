@@ -22,6 +22,11 @@ namespace Shopping.Web.Pages
 
         public async Task<IActionResult> OnPostAddToCartAsync(Guid productId)
         {
+            if (!User.Identity?.IsAuthenticated ?? true)
+            {
+                return RedirectToPage("/Account/Login", new { returnUrl = $"/ProductDetail/{productId}" });
+            }
+
             logger.LogInformation("Add to cart button clicked");
             var productResponse = await catalogService.GetProduct(productId);
 

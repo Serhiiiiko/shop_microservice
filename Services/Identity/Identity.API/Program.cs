@@ -3,6 +3,9 @@ using Identity.API.Data;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Microsoft.AspNetCore.Identity;
+using Identity.API.Models;
+using Duende.IdentityServer;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -23,9 +26,62 @@ try
         .PersistKeysToFileSystem(new DirectoryInfo("/home/app/.aspnet/DataProtection-Keys"))
         .SetApplicationName("EShopOnContainers");
 
-    var app = builder
-        .ConfigureServices()
-        .ConfigurePipeline();
+    // Add services
+    builder.Services.AddRazorPages();
+
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
+
+    builder.Services
+        .AddIdentityServer(options =>
+        {
+            options.Events.RaiseErrorEvents = true;
+            options.Events.RaiseInformationEvents = true;
+            options.Events.RaiseFailureEvents = true;
+            options.Events.RaiseSuccessEvents = true;
+            options.EmitStaticAudienceClaim = true;
+
+            // Set the issuer URI
+            if (!string.IsNullOrEmpty(builder.Configuration["IdentityServer:IssuerUri"]))
+            {
+                options.IssuerUri = builder.Configuration["IdentityServer:IssuerUri"];
+            }
+        })
+        .AddInMemoryIdentityResources(Config.IdentityResources)
+        .AddInMemoryApiScopes(Config.ApiScopes)
+        .AddInMemoryApiResources(Config.ApiResources)
+        .AddInMemoryClients(Config.Clients)
+        .AddAspNetIdentity<ApplicationUser>()
+        // Use developer signing credential - creates temporary keys in memory
+        // No file permissions needed!
+        .AddDeveloperSigningCredential();
+
+    builder.Services.AddAuthentication();
+
+    var app = builder.Build();
+
+    // Configure pipeline
+    app.UseSerilogRequestLogging();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseDeveloperExceptionPage();
+    }
+
+    app.UseStaticFiles();
+    app.UseRouting();
+
+    app.UseIdentityServer();
+    app.UseAuthorization();
+
+    app.MapRazorPages()
+        .RequireAuthorization();
+
+    // Migrate database
     using (var scope = app.Services.CreateScope())
     {
         var services = scope.ServiceProvider;

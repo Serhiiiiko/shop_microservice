@@ -55,36 +55,51 @@ public static class Config
         };
 
     public static IEnumerable<Client> Clients =>
-        new Client[]
+    new Client[]
+    {
+        new Client
         {
-            new Client
+            ClientId = "shopping.web",
+            ClientName = "Shopping Web App",
+            AllowedGrantTypes = GrantTypes.Code,
+            RequireClientSecret = false,
+            RequirePkce = true,
+
+            RedirectUris = {
+                "https://localhost:6065/signin-oidc",
+                "http://localhost:6005/signin-oidc",
+                "https://shopping.web:8081/signin-oidc",
+                "http://shopping.web:8080/signin-oidc"
+            },
+            PostLogoutRedirectUris = {
+                "https://localhost:6065/signout-callback-oidc",
+                "http://localhost:6005/signout-callback-oidc",
+                "https://shopping.web:8081/signout-callback-oidc",
+                "http://shopping.web:8080/signout-callback-oidc"
+            },
+            AllowedCorsOrigins = {
+                "https://localhost:6065",
+                "http://localhost:6005",
+                "https://shopping.web:8081",
+                "http://shopping.web:8080"
+            },
+
+            AllowOfflineAccess = true,
+            AllowedScopes =
             {
-                ClientId = "shopping.web",
-                ClientName = "Shopping Web App",
-                AllowedGrantTypes = GrantTypes.Code,
-                RequireClientSecret = false,
-                RequirePkce = true,
-
-                RedirectUris = { "https://localhost:6065/signin-oidc" },
-                PostLogoutRedirectUris = { "https://localhost:6065/signout-callback-oidc" },
-                AllowedCorsOrigins = { "https://localhost:6065" },
-
-                AllowOfflineAccess = true,
-                AllowedScopes =
-                {
-                    IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile,
-                    IdentityServerConstants.StandardScopes.Email,
-                    "roles",
-                    "catalog.api",
-                    "basket.api",
-                    "discount.api",
-                    "ordering.api",
-                    "gateway"
-                },
-                AlwaysIncludeUserClaimsInIdToken = true,
-                AccessTokenLifetime = 3600,
-                IdentityTokenLifetime = 3600
-            }
-        };
+                IdentityServerConstants.StandardScopes.OpenId,
+                IdentityServerConstants.StandardScopes.Profile,
+                IdentityServerConstants.StandardScopes.Email,
+                "roles",
+                "catalog.api",
+                "basket.api",
+                "discount.api",
+                "ordering.api",
+                "gateway"
+            },
+            AlwaysIncludeUserClaimsInIdToken = true,
+            AccessTokenLifetime = 3600,
+            IdentityTokenLifetime = 3600
+        }
+    };
 }

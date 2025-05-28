@@ -57,7 +57,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__DefaultConnection=Data Source=AspIdUsers.db;
+      - ConnectionStrings__DefaultConnection=Data Source=/app/data/AspIdUsers.db;
     ports:
       - "5001:8081"
       - "5000:8080"
@@ -65,6 +65,7 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
       - dataprotection-keys:/home/app/.aspnet/DataProtection-Keys
+      - identity-db:/app/data
 
   catalog.api:
     environment:
@@ -165,7 +166,7 @@ services:
       - ASPNETCORE_HTTP_PORTS=8080
       - ASPNETCORE_HTTPS_PORTS=8081
       - ApiSettings__GatewayAddress=http://yarpapigateway:8080
-      - IdentityServer__Authority=https://identity.api:8081
+      - IdentityServer__Authority=http://identity.api:8080
       - IdentityServer__PublicAuthority=https://localhost:5001
     depends_on:
       - yarpapigateway

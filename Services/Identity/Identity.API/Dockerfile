@@ -3,6 +3,7 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+# Only need DataProtection keys directory now
 RUN mkdir -p /home/app/.aspnet/DataProtection-Keys && \
     chown -R $APP_UID:$APP_UID /home/app/.aspnet/DataProtection-Keys
 
