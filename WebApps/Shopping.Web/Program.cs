@@ -73,14 +73,29 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+
+// ВАЖНО: Сначала регистрируем HttpContextAccessor и AuthenticationDelegatingHandler
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<AuthenticationDelegatingHandler>();
 
-builder.Services.AddHttpContextAccessor();
+// Configure HTTP client handler to bypass SSL in development
+var httpClientHandler = new HttpClientHandler();
+if (builder.Environment.IsDevelopment())
+{
+    httpClientHandler.ServerCertificateCustomValidationCallback =
+        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+}
 
+// Теперь регистрируем Refit клиенты
 builder.Services.AddRefitClient<ICatalogService>()
     .ConfigureHttpClient(c =>
     {
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:GatewayAddress"]!);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback =
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
     })
     .AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
@@ -89,13 +104,22 @@ builder.Services.AddRefitClient<IBasketService>()
     {
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:GatewayAddress"]!);
     })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback =
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    })
     .AddHttpMessageHandler<AuthenticationDelegatingHandler>();
-builder.Services.AddTransient<AuthenticationDelegatingHandler>();
-builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddRefitClient<IOrderingService>()
     .ConfigureHttpClient(c =>
     {
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:GatewayAddress"]!);
+    })
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback =
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
     })
     .AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 

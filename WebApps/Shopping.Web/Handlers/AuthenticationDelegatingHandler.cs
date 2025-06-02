@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿// WebApps/Shopping.Web/Handlers/AuthenticationDelegatingHandler.cs
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Shopping.Web.Handlers;
@@ -21,11 +22,12 @@ public class AuthenticationDelegatingHandler : DelegatingHandler
         CancellationToken cancellationToken)
     {
         var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext != null)
+        if (httpContext != null && httpContext.User.Identity?.IsAuthenticated == true)
         {
             try
             {
-                var accessToken = await httpContext.GetTokenAsync(OpenIdConnectParameterNames.AccessToken);
+                // Try to get the access token
+                var accessToken = await httpContext.GetTokenAsync("access_token");
 
                 if (!string.IsNullOrWhiteSpace(accessToken))
                 {
@@ -45,7 +47,7 @@ public class AuthenticationDelegatingHandler : DelegatingHandler
         }
         else
         {
-            _logger.LogWarning("HttpContext is null - cannot retrieve access token");
+            _logger.LogWarning("HttpContext is null or user not authenticated");
         }
 
         return await base.SendAsync(request, cancellationToken);
