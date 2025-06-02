@@ -50,6 +50,13 @@ nav.navbar {
     transition: var(--transition);
 }
 
+    nav.navbar .container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+    }
+
     nav.navbar.scrolled {
         padding: 0.5rem 0;
         box-shadow: var(--shadow-md);
@@ -63,64 +70,122 @@ nav.navbar {
     -webkit-text-fill-color: transparent;
     background-clip: text;
     transition: var(--transition);
+    flex-shrink: 0;
+    margin-right: 3rem !important;
+    z-index: 10;
 }
+
+    .navbar-brand i {
+        margin-right: 0.5rem;
+    }
 
     .navbar-brand:hover {
         transform: translateY(-2px);
     }
 
-.nav-link {
-    font-weight: 500;
-    color: var(--text-primary) !important;
-    margin: 0 0.5rem;
-    padding: 0.5rem 1rem !important;
-    border-radius: 8px;
-    transition: var(--transition);
-    position: relative;
-    overflow: hidden;
+.navbar-collapse {
+    flex-grow: 1;
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
 }
 
-    .nav-link i {
-        margin-right: 0.5rem;
-        font-size: 1rem;
+.navbar-nav {
+    flex-direction: row;
+    align-items: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Navbar specific layout fixes */
+.navbar-toggler {
+    margin-left: auto;
+    order: 3;
+}
+
+@media (min-width: 768px) {
+    nav.navbar .container {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 2rem;
+        align-items: center;
     }
 
-    .nav-link::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        width: 0;
-        height: 2px;
-        background: var(--primary-color);
-        transform: translateX(-50%);
-        transition: width 0.3s ease;
+    .navbar-brand {
+        grid-column: 1;
+        margin-right: 0 !important;
     }
 
-    .nav-link:hover::before {
-        width: 80%;
+    .navbar-collapse {
+        grid-column: 2 / -1;
+        display: flex !important;
+        justify-content: space-between;
     }
 
-    .nav-link:hover {
-        color: var(--primary-color) !important;
-        background: rgba(99, 102, 241, 0.1);
+    .navbar-nav {
+        margin: 0;
+        flex-grow: 1;
+        justify-content: center;
     }
+}
+
+.nav-link i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transform: translateX(-50%);
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::before {
+    width: 80%;
+}
+
+.nav-link:hover {
+    color: var(--primary-color) !important;
+    background: rgba(99, 102, 241, 0.1);
+}
 
 /* Modern Search Bar */
-.form-inline .form-control {
-    border: 2px solid transparent;
-    background: var(--light-bg);
-    border-radius: 10px;
-    padding: 0.5rem 1rem;
-    transition: var(--transition);
-    width: 300px;
+.form-inline {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
 }
 
-    .form-inline .form-control:focus {
-        outline: none;
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    .form-inline .form-control {
+        border: 2px solid transparent;
+        background: var(--light-bg);
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        transition: var(--transition);
+        width: 300px;
     }
+
+        .form-inline .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+/* Auth buttons group */
+.col-sm-4.col-lg-auto {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 1rem;
+}
 
 /* Modern Buttons */
 .btn {
@@ -418,13 +483,21 @@ footer {
         transform: scale(1.1);
     }
 
-/* Form Controls */
 .form-control,
 .custom-select {
     border: 2px solid #e5e7eb;
     border-radius: 10px;
     padding: 0.75rem 1rem;
     transition: var(--transition);
+}
+
+/* Fix for select elements to show full text */
+.custom-select {
+    height: auto;
+    min-height: 45px;
+    line-height: 1.5;
+    padding-top: 0.65rem;
+    padding-bottom: 0.65rem;
 }
 
     .form-control:focus,
@@ -568,6 +641,17 @@ img {
     .nav-link {
         margin: 0 0.25rem;
         padding: 0.5rem 0.75rem !important;
+    }
+
+    .navbar-collapse {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navbar-nav {
+        flex-direction: column;
+        width: 100%;
+        margin-top: 1rem;
     }
 }
 

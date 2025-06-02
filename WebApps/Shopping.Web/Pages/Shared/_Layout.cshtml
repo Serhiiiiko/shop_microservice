@@ -45,7 +45,7 @@
         <nav class="navbar navbar-expand-md">
             <div class="container">
                 <a class="navbar-brand" asp-area="" asp-page="/Index">
-                    <i class="fa fa-shopping-bag"></i> AspnetRunBasics
+                    <i class="fa fa-shopping-bag"></i> eShop
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon">
@@ -53,8 +53,8 @@
                     </span>
                 </button>
 
-                <div class="collapse navbar-collapse justify-content-end" id="navbarsExampleDefault">
-                    <ul class="navbar-nav m-auto">
+                <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                    <ul class="navbar-nav mx-auto">
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Index">
                                 <i class="fa fa-home"></i> Home
@@ -86,44 +86,34 @@
                             </a>
                         </li>
                     </ul>
-                    <div class="col-sm-4 col-lg-auto">
+
+                    <div class="d-flex align-items-center">
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
-                            <div class="d-flex align-items-center">
-                                <span class="text-muted mr-3">Welcome, @User.Identity.Name!</span>
-                                <form asp-page="/Account/Logout" method="post" class="d-inline">
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">
-                                        <i class="fa fa-sign-out"></i> Logout
-                                    </button>
-                                </form>
-                            </div>
+                            <span class="text-muted mr-3">Welcome, @User.Identity.Name!</span>
+                            <form asp-page="/Account/Logout" method="post" class="d-inline mr-3">
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="fa fa-sign-out"></i> Logout
+                                </button>
+                            </form>
                         }
                         else
                         {
-                            <div>
-                                <a asp-page="/Account/Login" class="btn btn-outline-primary btn-sm mr-2">
-                                    <i class="fa fa-sign-in"></i> Login
-                                </a>
-                                <a asp-page="/Account/Register" class="btn btn-primary btn-sm">
-                                    <i class="fa fa-user-plus"></i> Register
-                                </a>
-                            </div>
+                            <a asp-page="/Account/Login" class="btn btn-outline-primary btn-sm mr-2">
+                                <i class="fa fa-sign-in"></i> Login
+                            </a>
+                            <a asp-page="/Account/Register" class="btn btn-primary btn-sm mr-3">
+                                <i class="fa fa-user-plus"></i> Register
+                            </a>
                         }
-                    </div>
-                    <form class="form-inline my-2 my-lg-0">
-                        <div class="input-group input-group-sm">
-                            <input type="text" class="form-control" placeholder="Search products...">
-                            <div class="input-group-append">
-                                <button type="button" class="btn btn-primary btn-number">
-                                    <i class="fa fa-search"></i>
-                                </button>
-                            </div>
-                        </div>
+
+                        
+
                         <a class="btn btn-success btn-sm ml-3" asp-area="" asp-page="/Cart">
                             <i class="fa fa-shopping-cart"></i> Cart
                             <span class="badge badge-light">@itemCount</span>
                         </a>
-                    </form>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -161,8 +151,8 @@
                     <h5>Contact Us</h5>
                     <hr class="bg-white mb-2 mt-0 d-inline-block mx-auto w-25">
                     <ul class="list-unstyled">
-                        <li><i class="fa fa-home mr-2"></i> AspnetRun Company</li>
-                        <li><i class="fa fa-envelope mr-2"></i> info@aspnetrun.com</li>
+                        <li><i class="fa fa-home mr-2"></i> eShop Company</li>
+                        <li><i class="fa fa-envelope mr-2"></i> eShopSupport@eShop.com</li>
                         <li><i class="fa fa-phone mr-2"></i> + 1 234 567 890</li>
                         <li><i class="fa fa-print mr-2"></i> + 1 234 567 891</li>
                     </ul>
@@ -179,9 +169,6 @@
                         <a href="#" class="btn btn-sm btn-primary">
                             <i class="fa fa-arrow-up"></i> Back to top
                         </a>
-                    </p>
-                    <p class="text-right text-muted">
-                        Made with <i class="fa fa-heart" style="color: #ec4899;"></i> by <a href="#"><i>AspnetRun</i></a> | <span>v. 2.0</span>
                     </p>
                 </div>
             </div>
