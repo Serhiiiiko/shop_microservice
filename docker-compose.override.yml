@@ -96,6 +96,8 @@ services:
       - MessageBroker__UserName=guest
       - MessageBroker__Password=guest
       - IdentityServer__Authority=https://identity.api:8081
+      - Logging__LogLevel__Default=Debug
+      - Logging__LogLevel__Microsoft.AspNetCore.Authentication=Debug
     depends_on:
       - basketdb
       - distributedcache

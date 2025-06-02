@@ -60,10 +60,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
+            ValidateIssuer = false,  // Добавьте эту строку для development
             NameClaimType = "name",
             RoleClaimType = "role"
         };
         options.RequireHttpsMetadata = false;
+
+        // Добавьте для development - принимать любые сертификаты
+        options.BackchannelHttpHandler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
     });
 
 builder.Services.AddAuthorization();

@@ -3,9 +3,13 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-RUN mkdir -p /home/app/.aspnet/DataProtection-Keys && \
-    chown -R $APP_UID:$APP_UID /home/app/.aspnet/DataProtection-Keys && \
-    chown -R $APP_UID:$APP_UID /app
+
+RUN mkdir -p /app/data && \
+    mkdir -p /home/app/.aspnet/DataProtection-Keys && \
+    chmod 755 /app/data && \
+    chmod 755 /home/app/.aspnet/DataProtection-Keys && \
+    chown -R $APP_UID:$APP_UID /app && \
+    chown -R $APP_UID:$APP_UID /home/app
 
 USER $APP_UID
 
@@ -25,4 +29,8 @@ RUN dotnet publish "./Identity.API.csproj" -c $BUILD_CONFIGURATION -o /app/publi
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+
+RUN mkdir -p /app/data && chmod 755 /app/data
+
 ENTRYPOINT ["dotnet", "Identity.API.dll"]
