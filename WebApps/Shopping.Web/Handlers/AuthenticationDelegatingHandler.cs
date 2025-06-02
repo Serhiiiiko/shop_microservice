@@ -1,6 +1,6 @@
-﻿// WebApps/Shopping.Web/Handlers/AuthenticationDelegatingHandler.cs
-using Microsoft.AspNetCore.Authentication;
+﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using System.Net.Http.Headers;
 
 namespace Shopping.Web.Handlers;
 
@@ -22,32 +22,78 @@ public class AuthenticationDelegatingHandler : DelegatingHandler
         CancellationToken cancellationToken)
     {
         var httpContext = _httpContextAccessor.HttpContext;
-        if (httpContext != null && httpContext.User.Identity?.IsAuthenticated == true)
-        {
-            try
-            {
-                // Try to get the access token
-                var accessToken = await httpContext.GetTokenAsync("access_token");
 
-                if (!string.IsNullOrWhiteSpace(accessToken))
+        _logger.LogDebug("AuthenticationDelegatingHandler invoked for {Uri}", request.RequestUri);
+
+        if (httpContext != null)
+        {
+            if (httpContext.User.Identity?.IsAuthenticated == true)
+            {
+                _logger.LogDebug("User is authenticated: {UserName}", httpContext.User.Identity.Name);
+
+                try
                 {
-                    _logger.LogDebug("Adding access token to request header");
-                    request.Headers.Authorization =
-                        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+                    // Try to get the access token
+                    var accessToken = await httpContext.GetTokenAsync("access_token");
+
+                    if (!string.IsNullOrWhiteSpace(accessToken))
+                    {
+                        _logger.LogInformation("Access token found, adding to request header");
+                        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                        // Log first few characters of token for debugging
+                        _logger.LogDebug("Token starts with: {TokenStart}...",
+                            accessToken.Length > 20 ? accessToken.Substring(0, 20) : accessToken);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("No access token found in the current context");
+
+                        // Try alternative methods to get the token
+                        var authResult = await httpContext.AuthenticateAsync();
+                        if (authResult.Succeeded && authResult.Properties?.GetTokenValue("access_token") != null)
+                        {
+                            accessToken = authResult.Properties.GetTokenValue("access_token");
+                            _logger.LogInformation("Access token retrieved from authentication result");
+                            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                        }
+                        else
+                        {
+                            // Log available tokens for debugging
+                            if (authResult.Properties?.GetTokens() != null)
+                            {
+                                foreach (var token in authResult.Properties.GetTokens())
+                                {
+                                    _logger.LogDebug("Available token: {TokenName}", token.Name);
+                                }
+                            }
+                        }
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    _logger.LogWarning("No access token found in the current context");
+                    _logger.LogError(ex, "Error retrieving access token");
                 }
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Error retrieving access token");
+                _logger.LogWarning("User is not authenticated");
             }
         }
         else
         {
-            _logger.LogWarning("HttpContext is null or user not authenticated");
+            _logger.LogWarning("HttpContext is null");
+        }
+
+        // Log the authorization header status
+        if (request.Headers.Authorization != null)
+        {
+            _logger.LogInformation("Request has Authorization header: {Scheme}",
+                request.Headers.Authorization.Scheme);
+        }
+        else
+        {
+            _logger.LogWarning("No Authorization header added to request");
         }
 
         return await base.SendAsync(request, cancellationToken);

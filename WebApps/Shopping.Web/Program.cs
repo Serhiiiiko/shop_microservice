@@ -1,68 +1,87 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using System.Net.Http;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Refit;
 using Shopping.Web.Handlers;
+using Shopping.Web.Services;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add services to the container.
 builder.Services.AddRazorPages();
 
+// Configure Data Protection with persistent storage
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/home/app/.aspnet/DataProtection-Keys"))
     .SetApplicationName("EShopOnContainers");
 
+// Add HttpContextAccessor for authentication handler
+builder.Services.AddHttpContextAccessor();
+
+// Configure JWT handling
+JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+// Configure Authentication
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
 })
-.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+})
 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
 {
-    options.Authority = builder.Configuration["IdentityServer:Authority"];
+    var authority = builder.Configuration["IdentityServer:Authority"];
+    var publicAuthority = builder.Configuration["IdentityServer:PublicAuthority"];
+
+    options.Authority = authority;
+    options.MetadataAddress = $"{authority}/.well-known/openid-configuration";
+
     options.ClientId = "shopping.web";
-    options.ResponseType = "code";
-    options.SaveTokens = true;
-    options.GetClaimsFromUserInfoEndpoint = true;
-    options.RequireHttpsMetadata = false;
+    options.ResponseType = OpenIdConnectResponseType.Code;
+    options.UsePkce = true;
 
-    options.BackchannelHttpHandler = new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback =
-            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-    };
-
+    options.Scope.Clear();
     options.Scope.Add("openid");
     options.Scope.Add("profile");
     options.Scope.Add("email");
     options.Scope.Add("roles");
-    options.Scope.Add("catalog.api");
     options.Scope.Add("basket.api");
+    options.Scope.Add("catalog.api");
     options.Scope.Add("ordering.api");
     options.Scope.Add("gateway");
+    options.Scope.Add("offline_access");
 
-    options.TokenValidationParameters = new TokenValidationParameters
+    options.SaveTokens = true;
+    options.GetClaimsFromUserInfoEndpoint = true;
+    options.RequireHttpsMetadata = false;
+
+    // Map claims
+    options.ClaimActions.MapJsonKey("role", "role");
+    options.ClaimActions.MapJsonKey("name", "name");
+    options.ClaimActions.MapJsonKey("email", "email");
+
+    options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
         NameClaimType = "name",
-        RoleClaimType = "role",
-        ValidateIssuer = false
+        RoleClaimType = "role"
     };
 
+    // Handle events
     options.Events = new OpenIdConnectEvents
     {
         OnRedirectToIdentityProvider = context =>
         {
-            var publicAuthority = builder.Configuration["IdentityServer:PublicAuthority"]
-                ?? builder.Configuration["IdentityServer:Authority"];
-
+            // Use public authority for browser redirects
             if (!string.IsNullOrEmpty(publicAuthority))
             {
-                context.ProtocolMessage.IssuerAddress =
-                    context.ProtocolMessage.IssuerAddress.Replace(options.Authority, publicAuthority);
+                context.ProtocolMessage.IssuerAddress = context.ProtocolMessage.IssuerAddress.Replace(authority, publicAuthority);
             }
-
             return Task.CompletedTask;
         },
         OnRemoteFailure = context =>
@@ -72,68 +91,54 @@ builder.Services.AddAuthentication(options =>
             return Task.CompletedTask;
         }
     };
+
+    // For development - accept any certificate
+    options.BackchannelHttpHandler = new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+    };
 });
 
-// ВАЖНО: Сначала регистрируем HttpContextAccessor и AuthenticationDelegatingHandler
-builder.Services.AddHttpContextAccessor();
+// Add Authorization
+builder.Services.AddAuthorization();
+
+// Configure Refit clients with authentication
 builder.Services.AddTransient<AuthenticationDelegatingHandler>();
 
-// Configure HTTP client handler to bypass SSL in development
-var httpClientHandler = new HttpClientHandler();
-if (builder.Environment.IsDevelopment())
-{
-    httpClientHandler.ServerCertificateCustomValidationCallback =
-        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-}
-
-// Теперь регистрируем Refit клиенты
-builder.Services.AddRefitClient<ICatalogService>()
+builder.Services
+    .AddRefitClient<ICatalogService>()
     .ConfigureHttpClient(c =>
     {
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:GatewayAddress"]!);
-    })
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback =
-            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
     })
     .AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
-builder.Services.AddRefitClient<IBasketService>()
+builder.Services
+    .AddRefitClient<IBasketService>()
     .ConfigureHttpClient(c =>
     {
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:GatewayAddress"]!);
-    })
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback =
-            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
     })
     .AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
-builder.Services.AddRefitClient<IOrderingService>()
+builder.Services
+    .AddRefitClient<IOrderingService>()
     .ConfigureHttpClient(c =>
     {
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:GatewayAddress"]!);
-    })
-    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    {
-        ServerCertificateCustomValidationCallback =
-            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
     })
     .AddHttpMessageHandler<AuthenticationDelegatingHandler>();
 
 var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.UseAuthentication();
