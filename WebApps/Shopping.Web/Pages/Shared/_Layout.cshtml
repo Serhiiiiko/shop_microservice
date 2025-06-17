@@ -30,12 +30,12 @@
             }
             catch (ApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                // Handle unauthorized gracefully - user might be logged in to web but token expired
+                
                 itemCount = 0;
             }
             catch
             {
-                // Handle other errors gracefully
+                
                 itemCount = 0;
             }
         }
@@ -80,11 +80,15 @@
                                 <i class="fa fa-envelope"></i> Contact
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Admin/Products/Index">
-                                <i class="fa fa-cog"></i> Admin
-                            </a>
-                        </li>
+                      
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="" asp-page="/Admin/Products/Index">
+                                    <i class="fa fa-cog"></i> Admin
+                                </a>
+                            </li>
+                        }
                     </ul>
 
                     <div class="d-flex align-items-center">

@@ -1,8 +1,14 @@
-using static Shopping.Web.Services.ICatalogService;
+// WebApps/Shopping.Web/Pages/Admin/Products/Edit.cshtml.cs
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Shopping.Web.Services;
 using System.ComponentModel.DataAnnotations;
+using static Shopping.Web.Services.ICatalogService;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Shopping.Web.Pages.Admin.Products
 {
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
     public class EditModel : PageModel
     {
         private readonly ICatalogService _catalogService;
@@ -19,7 +25,6 @@ namespace Shopping.Web.Pages.Admin.Products
 
         public class EditProductViewModel
         {
-            [Required]
             public Guid Id { get; set; }
 
             [Required]
@@ -35,13 +40,13 @@ namespace Shopping.Web.Pages.Admin.Products
             [Required]
             public string Category { get; set; } = string.Empty;
 
-            public string ImageFilePath { get; set; } = string.Empty;
+            public string ImageFilePath { get; set; } = "product-1.png";
         }
 
         public async Task<IActionResult> OnGetAsync(Guid id)
         {
-            var productResponse = await _catalogService.GetProduct(id);
-            var product = productResponse.Product;
+            var response = await _catalogService.GetProduct(id);
+            var product = response.Product;
 
             Product = new EditProductViewModel
             {
@@ -50,7 +55,7 @@ namespace Shopping.Web.Pages.Admin.Products
                 Description = product.Description,
                 Price = product.Price,
                 Category = string.Join(", ", product.Category),
-                ImageFilePath = product.ImageFilePath // Исправлено с ImageFile на ImageFilePath
+                ImageFilePath = product.ImageFilePath
             };
 
             return Page();
@@ -63,6 +68,7 @@ namespace Shopping.Web.Pages.Admin.Products
                 return Page();
             }
 
+            // Convert comma-separated categories to List<string>
             var categories = Product.Category.Split(',')
                 .Select(c => c.Trim())
                 .Where(c => !string.IsNullOrEmpty(c))
@@ -74,7 +80,7 @@ namespace Shopping.Web.Pages.Admin.Products
                 Product.Name,
                 Product.Description,
                 categories,
-                Product.ImageFilePath // Исправлено с ImageFile на ImageFilePath
+                Product.ImageFilePath
             );
 
             await _catalogService.UpdateProduct(updateRequest);

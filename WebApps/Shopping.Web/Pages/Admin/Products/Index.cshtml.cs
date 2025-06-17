@@ -1,8 +1,11 @@
 // Create a new folder structure: WebApps/Shopping.Web/Pages/Admin/Products/
 
 // WebApps/Shopping.Web/Pages/Admin/Products/Index.cshtml.cs
+using Microsoft.AspNetCore.Authorization;
+
 namespace Shopping.Web.Pages.Admin.Products
 {
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
     public class IndexModel : PageModel
     {
         private readonly ICatalogService _catalogService;

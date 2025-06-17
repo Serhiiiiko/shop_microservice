@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Shopping.Web.Services;
 using System.ComponentModel.DataAnnotations;
 using static Shopping.Web.Services.ICatalogService;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Shopping.Web.Pages.Admin.Products
 {
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
     public class CreateModel : PageModel
     {
         private readonly ICatalogService _catalogService;
@@ -56,7 +58,7 @@ namespace Shopping.Web.Pages.Admin.Products
                 .Where(c => !string.IsNullOrEmpty(c))
                 .ToList();
 
-            var createRequest = new CreateProductRequest (
+            var createRequest = new CreateProductRequest(
                 Product.Price,
                 Product.Name,
                 Product.Description,
