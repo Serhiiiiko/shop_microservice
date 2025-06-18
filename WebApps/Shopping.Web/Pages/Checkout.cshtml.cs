@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Shopping.Web.Pages
 {
@@ -28,8 +29,26 @@ namespace Shopping.Web.Pages
                 return Page();
             }
 
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            Order.CustomerId = Guid.Parse(userId ?? Guid.NewGuid().ToString());
+            // Получаем ID пользователя из claim "sub" (subject)
+            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                logger.LogError("User ID claim not found");
+                return Page();
+            }
+
+            var userId = userIdClaim.Value;
+            logger.LogInformation("Checkout for user ID: {UserId}", userId);
+
+            // Проверяем, является ли userId валидным Guid
+            if (!Guid.TryParse(userId, out var customerId))
+            {
+                logger.LogError("Invalid user ID format: {UserId}", userId);
+                ModelState.AddModelError("", "Invalid user ID format");
+                return Page();
+            }
+
+            Order.CustomerId = customerId;
             Order.UserName = Cart.UserName;
             Order.TotalPrice = Cart.TotalPrice;
 

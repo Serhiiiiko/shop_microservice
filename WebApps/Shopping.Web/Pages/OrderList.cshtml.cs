@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Shopping.Web.Pages
 {
@@ -11,11 +12,30 @@ namespace Shopping.Web.Pages
 
         public async Task<IActionResult> OnGetAsync()
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            var customerId = Guid.Parse(userId ?? Guid.NewGuid().ToString());
+            // Получаем ID пользователя из claim "sub" (subject)
+            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                logger.LogError("User ID claim not found");
+                Orders = new List<OrderModel>();
+                return Page();
+            }
 
-            var response = await orderingService.GetOrdersByCustomer(customerId);
-            Orders = response.Orders;
+            var userId = userIdClaim.Value;
+            var customerId = Guid.Parse(userId);
+
+            logger.LogInformation("Getting orders for customer ID: {CustomerId}", customerId);
+
+            try
+            {
+                var response = await orderingService.GetOrdersByCustomer(customerId);
+                Orders = response.Orders;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error getting orders for customer {CustomerId}", customerId);
+                Orders = new List<OrderModel>();
+            }
 
             return Page();
         }

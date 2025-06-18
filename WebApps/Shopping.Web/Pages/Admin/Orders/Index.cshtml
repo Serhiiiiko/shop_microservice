@@ -1,0 +1,185 @@
+﻿@page
+@model Shopping.Web.Pages.Admin.Orders.IndexModel
+@{
+    ViewData["Title"] = "Orders - Database Table";
+}
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="fa fa-shopping-bag"></i> Orders Table</h2>
+            <p class="text-muted">Database: orderdb (SQL Server) | Table: Orders</p>
+        </div>
+        <div class="col text-right">
+            <a asp-page="/Admin/Index" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong>Table Schema</strong>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Id</td>
+                        <td>uniqueidentifier</td>
+                        <td>Primary Key</td>
+                    </tr>
+                    <tr>
+                        <td>CustomerId</td>
+                        <td>uniqueidentifier</td>
+                        <td>Foreign Key to Customers</td>
+                    </tr>
+                    <tr>
+                        <td>OrderName</td>
+                        <td>nvarchar(100)</td>
+                        <td>Order name/identifier</td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td>nvarchar(max)</td>
+                        <td>Order status (Draft, Pending, Completed, Cancelled)</td>
+                    </tr>
+                    <tr>
+                        <td>TotalPrice</td>
+                        <td>decimal(18,2)</td>
+                        <td>Total order price</td>
+                    </tr>
+                    <tr>
+                        <td>ShippingAddress_*</td>
+                        <td>Complex Type</td>
+                        <td>Shipping address fields</td>
+                    </tr>
+                    <tr>
+                        <td>BillingAddress_*</td>
+                        <td>Complex Type</td>
+                        <td>Billing address fields</td>
+                    </tr>
+                    <tr>
+                        <td>Payment_*</td>
+                        <td>Complex Type</td>
+                        <td>Payment information fields</td>
+                    </tr>
+                    <tr>
+                        <td>CreatedAt</td>
+                        <td>datetime2</td>
+                        <td>Creation timestamp</td>
+                    </tr>
+                    <tr>
+                        <td>CreatedBy</td>
+                        <td>nvarchar(max)</td>
+                        <td>Created by user</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3>Table Data</h3>
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Order Name</th>
+                    <th>Customer ID</th>
+                    <th>Status</th>
+                    <th>Total Price</th>
+                    <th>Shipping To</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Orders != null && Model.Orders.Any())
+                {
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td class="small">@order.Id</td>
+                            <td>@order.OrderName</td>
+                            <td class="small">@order.CustomerId</td>
+                            <td>
+                                <span class="badge badge-@(order.Status switch
+                                      {
+                                          Shopping.Web.Models.Ordering.OrderStatus.Draft => "secondary",
+                                          Shopping.Web.Models.Ordering.OrderStatus.Pending => "warning",
+                                          Shopping.Web.Models.Ordering.OrderStatus.Completed => "success",
+                                          Shopping.Web.Models.Ordering.OrderStatus.Cancelled => "danger",
+                                          _ => "info"
+                                      })">
+                            @order.Status
+                        </span>
+                    </td>
+                    <td>$@order.OrderItems.Sum(i => i.Price * i.Quantity).ToString("F2")</td>
+                    <td>@order.ShippingAddress.FirstName @order.ShippingAddress.LastName</td>
+                    <td>
+                        <button class="btn btn-sm btn-info" type="button" data-toggle="collapse"
+                                data-target="#order-@order.Id" aria-expanded="false">
+                            View Details
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="7" class="p-0">
+                        <div class="collapse" id="order-@order.Id">
+                            <div class="p-3 bg-light">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <h6>Shipping Address</h6>
+                                        <p class="small mb-0">
+                                            @order.ShippingAddress.FirstName @order.ShippingAddress.LastName<br />
+                                            @order.ShippingAddress.AddressLine<br />
+                                            @order.ShippingAddress.State @order.ShippingAddress.ZipCode<br />
+                                            @order.ShippingAddress.Country
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>Payment Info</h6>
+                                        <p class="small mb-0">
+                                            Card: @order.Payment.CardName<br />
+                                            Number: ****@order.Payment.CardNumber.Substring(Math.Max(0, order.Payment.CardNumber.Length - 4))<br />
+                                            Method: @order.Payment.PaymentMethod
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <h6>Order Items (@order.OrderItems.Count)</h6>
+                                        <ul class="small mb-0">
+                                            @foreach (var item in order.OrderItems)
+                                                    {
+                                                        <li>Product @item.ProductId.ToString().Substring(0, 8): @item.Quantity x $@item.Price</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center">No orders found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <strong>Note:</strong> This table uses Entity Framework Core with SQL Server.
+            Complex types (Address, Payment) are stored as owned entities in the same table.
+        </div>
+    </div>
+</div>

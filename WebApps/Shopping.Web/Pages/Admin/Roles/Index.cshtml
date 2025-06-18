@@ -1,0 +1,148 @@
+﻿@page
+@model Shopping.Web.Pages.Admin.Roles.IndexModel
+@{
+    ViewData["Title"] = "AspNetRoles - Database Table";
+}
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="fa fa-key"></i> AspNetRoles Table</h2>
+            <p class="text-muted">Database: AspIdUsers.db (SQLite) | Table: AspNetRoles</p>
+        </div>
+        <div class="col text-right">
+            <a asp-page="/Admin/Index" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong>Table Schema</strong>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Id</td>
+                        <td>TEXT</td>
+                        <td>Primary Key (GUID as string)</td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>TEXT(256)</td>
+                        <td>Role name</td>
+                    </tr>
+                    <tr>
+                        <td>NormalizedName</td>
+                        <td>TEXT(256)</td>
+                        <td>Normalized role name for searches (unique)</td>
+                    </tr>
+                    <tr>
+                        <td>ConcurrencyStamp</td>
+                        <td>TEXT</td>
+                        <td>Used for optimistic concurrency</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3>Common Roles</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Role Name</th>
+                    <th>Description</th>
+                    <th>Typical Permissions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Admin</td>
+                    <td>Administrator role</td>
+                    <td>Full access to all resources</td>
+                </tr>
+                <tr>
+                    <td>User</td>
+                    <td>Regular user role</td>
+                    <td>Basic shopping functionality</td>
+                </tr>
+                <tr>
+                    <td>Manager</td>
+                    <td>Manager role</td>
+                    <td>Can manage products and orders</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <h4>Related Identity Tables:</h4>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>AspNetUserRoles</h5>
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Column</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>UserId</td>
+                            <td>TEXT (FK to AspNetUsers)</td>
+                        </tr>
+                        <tr>
+                            <td>RoleId</td>
+                            <td>TEXT (FK to AspNetRoles)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <h5>AspNetRoleClaims</h5>
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Column</th>
+                            <th>Type</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Id</td>
+                            <td>INTEGER (PK)</td>
+                        </tr>
+                        <tr>
+                            <td>RoleId</td>
+                            <td>TEXT (FK to AspNetRoles)</td>
+                        </tr>
+                        <tr>
+                            <td>ClaimType</td>
+                            <td>TEXT</td>
+                        </tr>
+                        <tr>
+                            <td>ClaimValue</td>
+                            <td>TEXT</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <strong>Note:</strong> This table is part of ASP.NET Core Identity and manages user roles for authorization.
+        </div>
+    </div>
+</div>

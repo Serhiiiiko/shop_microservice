@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Basket.API.Basket.StoreBasket;
 
@@ -10,11 +11,21 @@ public class StoreBasketEndpoints : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapPost("/basket",
-            [Authorize] async (StoreBasketRequest request, ISender sender, HttpContext context) =>
+            [Authorize] async (StoreBasketRequest request, ISender sender, HttpContext context, ILogger<StoreBasketEndpoints> logger) =>
             {
-                var currentUser = context.User.Identity?.Name;
-                if (currentUser != request.Cart.UserName && !context.User.IsInRole("Admin"))
+                // Get the authenticated user's name from claims
+                var authenticatedUserName = context.User.FindFirst(ClaimTypes.Name)?.Value
+                    ?? context.User.FindFirst("name")?.Value
+                    ?? context.User.Identity?.Name;
+
+                logger.LogInformation("StoreBasket called for basket user {BasketUser} by authenticated user {AuthUser}",
+                    request.Cart.UserName, authenticatedUserName);
+
+                // Check if user is storing their own basket or is admin
+                if (authenticatedUserName != request.Cart.UserName && !context.User.IsInRole("Admin"))
                 {
+                    logger.LogWarning("User {AuthUser} attempted to store basket for {BasketUser}",
+                        authenticatedUserName, request.Cart.UserName);
                     return Results.Forbid();
                 }
 
@@ -24,11 +35,12 @@ public class StoreBasketEndpoints : ICarterModule
 
                 return Results.Created($"/basket/{response.UserName}", response);
             })
-        .WithName("CreateProduct")
+        .WithName("StoreBasket")
         .Produces<StoreBasketResponse>(StatusCodes.Status201Created)
         .ProducesProblem(StatusCodes.Status400BadRequest)
-        .WithSummary("Create Product")
-        .WithDescription("Create Product")
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .WithSummary("Store Basket")
+        .WithDescription("Store Basket")
         .RequireAuthorization();
     }
 }

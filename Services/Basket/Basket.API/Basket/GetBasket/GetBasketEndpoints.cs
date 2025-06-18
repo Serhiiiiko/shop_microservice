@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Basket.API.Basket.GetBasket;
 
@@ -9,11 +10,21 @@ public class GetBasketEndpoints : ICarterModule
     public void AddRoutes(IEndpointRouteBuilder app)
     {
         app.MapGet("/basket/{userName}",
-            [Authorize] async (string userName, ISender sender, HttpContext context) =>
+            [Authorize] async (string userName, ISender sender, HttpContext context, ILogger<GetBasketEndpoints> logger) =>
             {
-                var currentUser = context.User.Identity?.Name;
-                if (currentUser != userName && !context.User.IsInRole("Admin"))
+                // Get the authenticated user's name from claims
+                var authenticatedUserName = context.User.FindFirst(ClaimTypes.Name)?.Value
+                    ?? context.User.FindFirst("name")?.Value
+                    ?? context.User.Identity?.Name;
+
+                logger.LogInformation("GetBasket called for {UserName} by authenticated user {AuthUser}",
+                    userName, authenticatedUserName);
+
+                // Check if user is accessing their own basket or is admin
+                if (authenticatedUserName != userName && !context.User.IsInRole("Admin"))
                 {
+                    logger.LogWarning("User {AuthUser} attempted to access basket of {UserName}",
+                        authenticatedUserName, userName);
                     return Results.Forbid();
                 }
 
@@ -21,11 +32,12 @@ public class GetBasketEndpoints : ICarterModule
                 var response = result.Adapt<GetBasketResponse>();
                 return Results.Ok(response);
             })
-        .WithName("GetProductById")
+        .WithName("GetBasket")
         .Produces<GetBasketResponse>(StatusCodes.Status200OK)
         .ProducesProblem(StatusCodes.Status400BadRequest)
-        .WithSummary("Get Product By Id")
-        .WithDescription("Get Product By Id")
+        .ProducesProblem(StatusCodes.Status403Forbidden)
+        .WithSummary("Get Basket")
+        .WithDescription("Get Basket")
         .RequireAuthorization();
     }
 }

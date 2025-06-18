@@ -1,0 +1,116 @@
+﻿@page
+@model Shopping.Web.Pages.Admin.Coupons.IndexModel
+@{
+    ViewData["Title"] = "Coupons - Database Table";
+}
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="fa fa-ticket"></i> Coupons Table</h2>
+            <p class="text-muted">Database: discountdb (SQLite) | Table: Coupones</p>
+        </div>
+        <div class="col text-right">
+            <a asp-page="/Admin/Index" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong>Table Schema</strong>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Id</td>
+                        <td>INTEGER</td>
+                        <td>Primary Key (Autoincrement)</td>
+                    </tr>
+                    <tr>
+                        <td>ProductName</td>
+                        <td>TEXT</td>
+                        <td>Product name for discount</td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td>TEXT</td>
+                        <td>Discount description</td>
+                    </tr>
+                    <tr>
+                        <td>Amount</td>
+                        <td>INTEGER</td>
+                        <td>Discount amount</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3>Table Data (Seed Data)</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Product Name</th>
+                    <th>Description</th>
+                    <th>Discount Amount</th>
+                    <th>gRPC Service</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>IPhone X</td>
+                    <td>IPhone Discount</td>
+                    <td>$150</td>
+                    <td>
+                        <span class="badge badge-success">Available</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Samsung 10</td>
+                    <td>Samsung Discount</td>
+                    <td>$100</td>
+                    <td>
+                        <span class="badge badge-success">Available</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <h4>gRPC Service Operations:</h4>
+        <div class="card">
+            <div class="card-body">
+                <ul>
+                    <li><strong>GetDiscount</strong> - Get discount by product name</li>
+                    <li><strong>CreateDiscount</strong> - Create new discount coupon</li>
+                    <li><strong>UpdateDiscount</strong> - Update existing discount</li>
+                    <li><strong>DeleteDiscount</strong> - Delete discount by product name</li>
+                </ul>
+                <p class="mb-0 mt-3">
+                    <strong>Note:</strong> The Basket service communicates with Discount service via gRPC
+                    to apply discounts during checkout.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <strong>Note:</strong> This table is accessed via gRPC service only. The Discount service
+            is a microservice that provides discount information to other services.
+        </div>
+    </div>
+</div>

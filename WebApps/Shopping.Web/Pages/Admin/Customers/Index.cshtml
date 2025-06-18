@@ -1,0 +1,139 @@
+﻿@page
+@model Shopping.Web.Pages.Admin.Customers.IndexModel
+@{
+    ViewData["Title"] = "Customers - Database Table";
+}
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="fa fa-users"></i> Customers Table</h2>
+            <p class="text-muted">Database: orderdb (SQL Server) | Table: Customers</p>
+        </div>
+        <div class="col text-right">
+            <a asp-page="/Admin/Index" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong>Table Schema</strong>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Id</td>
+                        <td>uniqueidentifier</td>
+                        <td>Primary Key</td>
+                    </tr>
+                    <tr>
+                        <td>Name</td>
+                        <td>nvarchar(100)</td>
+                        <td>Customer name</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>nvarchar(255)</td>
+                        <td>Email address (unique index)</td>
+                    </tr>
+                    <tr>
+                        <td>CreatedAt</td>
+                        <td>datetime2</td>
+                        <td>Creation timestamp</td>
+                    </tr>
+                    <tr>
+                        <td>CreatedBy</td>
+                        <td>nvarchar(max)</td>
+                        <td>Created by user</td>
+                    </tr>
+                    <tr>
+                        <td>LastModified</td>
+                        <td>datetime2</td>
+                        <td>Last modification timestamp</td>
+                    </tr>
+                    <tr>
+                        <td>LastModifiedBy</td>
+                        <td>nvarchar(max)</td>
+                        <td>Last modified by user</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3>Table Data</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Customer ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Orders Count</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Customers.Any())
+                {
+                    @foreach (var customer in Model.Customers)
+                    {
+                        <tr>
+                            <td class="small">@customer.Id</td>
+                            <td>@customer.Name</td>
+                            <td>@customer.Email</td>
+                            <td>@customer.OrdersCount</td>
+                            <td>@(customer.CreatedAt?.ToString("yyyy-MM-dd") ?? "N/A")</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">No customers found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <h4>Seed Data (from InitialData.cs):</h4>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="small">58c49479-ec65-4de2-86e7-033c546291aa</td>
+                    <td>mehmet</td>
+                    <td>mehmet@gmail.com</td>
+                </tr>
+                <tr>
+                    <td class="small">189dc8dc-990f-48e0-a37b-e6f2b60b9d7d</td>
+                    <td>john</td>
+                    <td>john@gmail.com</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <strong>Note:</strong> Customers in the Ordering Service are separate from Identity Service users.
+            They represent customers who have placed orders.
+        </div>
+    </div>
+</div>

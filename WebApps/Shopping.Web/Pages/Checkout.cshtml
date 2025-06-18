@@ -130,9 +130,10 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label asp-for="Order.ZipCode" for="zip">Zip</label>
-                        <input asp-for="Order.ZipCode" type="text" class="form-control" id="zip" placeholder="" required>
+                        <input asp-for="Order.ZipCode" type="text" class="form-control" id="zip"
+                               placeholder="" required maxlength="5" pattern="[0-9]{5}">
                         <div class="invalid-feedback">
-                            Zip code required.
+                            Zip code must be exactly 5 digits.
                         </div>
                     </div>
                 </div>

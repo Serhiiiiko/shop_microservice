@@ -1,0 +1,116 @@
+﻿@page
+@model Shopping.Web.Pages.Admin.OrderItems.IndexModel
+@{
+    ViewData["Title"] = "Order Items - Database Table";
+}
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="fa fa-list"></i> OrderItems Table</h2>
+            <p class="text-muted">Database: orderdb (SQL Server) | Table: OrderItems</p>
+        </div>
+        <div class="col text-right">
+            <a asp-page="/Admin/Index" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong>Table Schema</strong>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Id</td>
+                        <td>uniqueidentifier</td>
+                        <td>Primary Key</td>
+                    </tr>
+                    <tr>
+                        <td>OrderId</td>
+                        <td>uniqueidentifier</td>
+                        <td>Foreign Key to Orders</td>
+                    </tr>
+                    <tr>
+                        <td>ProductId</td>
+                        <td>uniqueidentifier</td>
+                        <td>Foreign Key to Products</td>
+                    </tr>
+                    <tr>
+                        <td>Quantity</td>
+                        <td>int</td>
+                        <td>Quantity ordered</td>
+                    </tr>
+                    <tr>
+                        <td>Price</td>
+                        <td>decimal(18,2)</td>
+                        <td>Price per unit</td>
+                    </tr>
+                    <tr>
+                        <td>CreatedAt</td>
+                        <td>datetime2</td>
+                        <td>Creation timestamp</td>
+                    </tr>
+                    <tr>
+                        <td>CreatedBy</td>
+                        <td>nvarchar(max)</td>
+                        <td>Created by user</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3>Table Data</h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Order ID</th>
+                    <th>Product ID</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.OrderItems != null && Model.OrderItems.Any())
+                {
+                    @foreach (var item in Model.OrderItems)
+                    {
+                        <tr>
+                            <td class="small">N/A</td>
+                            <td class="small">@item.OrderId</td>
+                            <td class="small">@item.ProductId</td>
+                            <td>@item.Quantity</td>
+                            <td>$@item.Price.ToString("F2")</td>
+                            <td>$@((item.Quantity * item.Price).ToString("F2"))</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center">No order items found</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <strong>Note:</strong> This table represents the many-to-many relationship between Orders and Products.
+            Each row represents a product within an order with its specific quantity and price.
+        </div>
+    </div>
+</div>

@@ -20,4 +20,8 @@
     <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\Admin\Baskets\" />
+  </ItemGroup>
+
 </Project>

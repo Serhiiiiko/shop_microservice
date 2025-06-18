@@ -1,0 +1,174 @@
+﻿@page
+@model Shopping.Web.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "AspNetUsers - Database Table";
+}
+
+<div class="container">
+    <div class="row mb-3">
+        <div class="col">
+            <h2><i class="fa fa-user"></i> AspNetUsers Table</h2>
+            <p class="text-muted">Database: AspIdUsers.db (SQLite) | Table: AspNetUsers</p>
+        </div>
+        <div class="col text-right">
+            <a asp-page="/Admin/Index" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <strong>Table Schema</strong>
+        </div>
+        <div class="card-body">
+            <table class="table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th>Column</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Id</td>
+                        <td>TEXT</td>
+                        <td>Primary Key (GUID as string)</td>
+                    </tr>
+                    <tr>
+                        <td>UserName</td>
+                        <td>TEXT(256)</td>
+                        <td>Username (unique)</td>
+                    </tr>
+                    <tr>
+                        <td>NormalizedUserName</td>
+                        <td>TEXT(256)</td>
+                        <td>Normalized username for searches</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>TEXT(256)</td>
+                        <td>Email address</td>
+                    </tr>
+                    <tr>
+                        <td>NormalizedEmail</td>
+                        <td>TEXT(256)</td>
+                        <td>Normalized email for searches</td>
+                    </tr>
+                    <tr>
+                        <td>EmailConfirmed</td>
+                        <td>INTEGER</td>
+                        <td>Email confirmation status</td>
+                    </tr>
+                    <tr>
+                        <td>PasswordHash</td>
+                        <td>TEXT</td>
+                        <td>Hashed password</td>
+                    </tr>
+                    <tr>
+                        <td>FirstName</td>
+                        <td>TEXT</td>
+                        <td>User's first name</td>
+                    </tr>
+                    <tr>
+                        <td>LastName</td>
+                        <td>TEXT</td>
+                        <td>User's last name</td>
+                    </tr>
+                    <tr>
+                        <td>Address</td>
+                        <td>TEXT</td>
+                        <td>Street address</td>
+                    </tr>
+                    <tr>
+                        <td>City</td>
+                        <td>TEXT</td>
+                        <td>City</td>
+                    </tr>
+                    <tr>
+                        <td>Country</td>
+                        <td>TEXT</td>
+                        <td>Country</td>
+                    </tr>
+                    <tr>
+                        <td>ZipCode</td>
+                        <td>TEXT</td>
+                        <td>Postal code</td>
+                    </tr>
+                    <tr>
+                        <td>PhoneNumber</td>
+                        <td>TEXT</td>
+                        <td>Phone number</td>
+                    </tr>
+                    <tr>
+                        <td>TwoFactorEnabled</td>
+                        <td>INTEGER</td>
+                        <td>2FA enabled status</td>
+                    </tr>
+                    <tr>
+                        <td>LockoutEnd</td>
+                        <td>TEXT</td>
+                        <td>Account lockout end date</td>
+                    </tr>
+                    <tr>
+                        <td>AccessFailedCount</td>
+                        <td>INTEGER</td>
+                        <td>Failed login attempts</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <h3>Sample Data</h3>
+        <div class="alert alert-warning">
+            <strong>Note:</strong> For security reasons, actual user data is not displayed here.
+            Only the table structure is shown.
+        </div>
+
+        <h4>Seed Users (from SeedData.cs):</h4>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Default Password</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>alice</td>
+                    <td>AliceSmith@email.com</td>
+                    <td>Alice Smith</td>
+                    <td>Pass123$</td>
+                </tr>
+                <tr>
+                    <td>bob</td>
+                    <td>BobSmith@email.com</td>
+                    <td>Bob Smith</td>
+                    <td>Pass123$</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4">
+        <h4>Related Tables in Identity Database:</h4>
+        <ul>
+            <li><strong>AspNetRoles</strong> - User roles</li>
+            <li><strong>AspNetUserRoles</strong> - User-role mappings</li>
+            <li><strong>AspNetUserClaims</strong> - User claims</li>
+            <li><strong>AspNetUserLogins</strong> - External login providers</li>
+            <li><strong>AspNetUserTokens</strong> - User tokens</li>
+            <li><strong>AspNetRoleClaims</strong> - Role claims</li>
+        </ul>
+    </div>
+
+    <div class="mt-4">
+        <div class="alert alert-info">
+            <strong>Note:</strong> This is the ASP.NET Core Identity table for authentication and authorization.
+            It uses Duende IdentityServer for OAuth2/OpenID Connect functionality.
+        </div>
+    </div>
+</div>

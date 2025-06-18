@@ -1,4 +1,3 @@
-// Update WebApps/Shopping.Web/Pages/Admin/Products/Create.cshtml.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Shopping.Web.Services;

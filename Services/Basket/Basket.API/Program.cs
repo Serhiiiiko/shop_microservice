@@ -1,9 +1,15 @@
+using Basket.API.Data;
+using BuildingBlock.Behaviors;
+using BuildingBlock.Exceptions.Handler;
+using Carter;
 using Discount.gRPC;
 using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using BuildingBlock.Messaging.MassTransit;
+using Marten;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using BuildingBlock.Messaging.MassTransit;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +31,9 @@ builder.Services.AddMarten(opts =>
 builder.Services.AddScoped<IBasketRepository, BasketRepository>();
 builder.Services.Decorate<IBasketRepository, CachedBasketRepository>();
 
-builder.Services.AddStackExchangeRedisCache(cache =>
+builder.Services.AddStackExchangeRedisCache(options =>
 {
-    cache.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
 });
 
 builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(options =>
@@ -39,13 +45,10 @@ builder.Services.AddGrpcClient<DiscountProtoService.DiscountProtoServiceClient>(
     var handler = new HttpClientHandler
     {
         ServerCertificateCustomValidationCallback =
-        HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
     };
-
     return handler;
 });
-
-builder.Services.AddMessageBroker(builder.Configuration);
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
@@ -60,21 +63,41 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
-            ValidateIssuer = false,  // Добавьте эту строку для development
-            NameClaimType = "name",
+            ValidateIssuer = false,
+            NameClaimType = ClaimTypes.Name,
             RoleClaimType = "role"
         };
         options.RequireHttpsMetadata = false;
 
-        // Добавьте для development - принимать любые сертификаты
+        // For development - accept any certificate
         options.BackchannelHttpHandler = new HttpClientHandler
         {
             ServerCertificateCustomValidationCallback =
                 HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
         };
+
+        // Add logging
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                logger.LogError("Authentication failed: {Error}", context.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+                var userName = context.Principal?.Identity?.Name;
+                logger.LogInformation("Token validated for user: {UserName}", userName);
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddMessageBroker(builder.Configuration);
 
 var app = builder.Build();
 
@@ -82,7 +105,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapCarter();
+
 app.UseExceptionHandler(options => { });
+
 app.UseHealthChecks("/health",
     new HealthCheckOptions
     {

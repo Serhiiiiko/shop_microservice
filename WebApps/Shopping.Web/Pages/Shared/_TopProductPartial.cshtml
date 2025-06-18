@@ -1,22 +1,320 @@
 ﻿@model Models.Catalog.ProductModel
 
 <div class="col-12 col-md-3">
-    <div class="card">
-        <div class="card-header bg-success text-white text-uppercase">
-            <i class="fa fa-heart"></i> Top product
+    <div class="top-product-card">
+        <div class="top-product-badge">
+            <i class="fa fa-crown"></i>
+            <span>Top Product</span>
         </div>
-        <a asp-page="ProductDetail" asp-route-productId="@Model.Id"><img asp-append-version="true" class="img-fluid border-0" src="~/images/product/@Model.ImageFile" alt="Card image cap"></a>
-        <div class="card-body">
-            <h4 class="card-title text-center"><a asp-page="ProductDetail" asp-route-productId="@Model.Id" title="View Product">@Model.Name</a></h4>
-            <div class="row">
-                <div class="col">
-                    <!-- ИСПРАВЛЕНИЕ: Изменил <p> на <a> для кнопки с ценой -->
-                    <a asp-page="ProductDetail" asp-route-productId="@Model.Id" class="btn btn-danger btn-block">@Model.Price $</a>
+        <div class="top-product-image">
+            <a asp-page="ProductDetail" asp-route-productId="@Model.Id">
+                <img asp-append-version="true" class="img-fluid" src="~/images/product/@Model.ImageFile" alt="@Model.Name">
+                <div class="top-product-overlay">
+                    <div class="overlay-content">
+                        <i class="fa fa-eye"></i>
+                        <span>View Details</span>
+                    </div>
                 </div>
-                <div class="col">
-                    <a asp-page="ProductDetail" asp-route-productId="@Model.Id" class="btn btn-success btn-block">View</a>
-                </div>
+            </a>
+        </div>
+        <div class="top-product-body">
+            <div class="product-rating">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <span class="rating-text">5.0</span>
+            </div>
+            <h4 class="top-product-title">
+                <a asp-page="ProductDetail" asp-route-productId="@Model.Id">@Model.Name</a>
+            </h4>
+            <div class="top-product-price">
+                <span class="price-current">$@Model.Price</span>
+                <span class="price-original">$@(Model.Price + 150)</span>
+            </div>
+            <div class="top-product-actions">
+                <a asp-page="ProductDetail" asp-route-productId="@Model.Id" class="btn-view-product">
+                    <span>View Product</span>
+                    <i class="fa fa-arrow-right"></i>
+                </a>
             </div>
         </div>
+        <div class="top-product-decoration"></div>
     </div>
 </div>
+
+<style>
+    .top-product-card {
+        position: relative;
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 400px;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .top-product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+
+    .top-product-badge {
+        position: absolute;
+        top: 20px;
+        left: -30px;
+        background: linear-gradient(135deg, #f59e0b, #f97316);
+        color: white;
+        padding: 8px 40px;
+        transform: rotate(-45deg);
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        z-index: 10;
+        box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+    }
+
+        .top-product-badge i {
+            margin-right: 5px;
+            transform: rotate(45deg);
+            display: inline-block;
+        }
+
+    .top-product-image {
+        position: relative;
+        height: 200px; 
+        overflow: hidden;
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    }
+
+        .top-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+    .top-product-card:hover .top-product-image img {
+        transform: scale(1.1);
+    }
+
+    .top-product-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(236, 72, 153, 0.9));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .top-product-card:hover .top-product-overlay {
+        opacity: 1;
+    }
+
+    .overlay-content {
+        text-align: center;
+        color: white;
+        transform: translateY(20px);
+        transition: transform 0.3s ease;
+    }
+
+    .top-product-card:hover .overlay-content {
+        transform: translateY(0);
+    }
+
+    .overlay-content i {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .overlay-content span {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .top-product-body {
+        padding: 1.25rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .product-rating {
+        color: #f59e0b;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+        .product-rating i {
+            margin-right: 2px;
+        }
+
+    .rating-text {
+        color: #6b7280;
+        font-weight: 600;
+        margin-left: 5px;
+    }
+
+    .top-product-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        line-height: 1.3;
+    }
+
+        .top-product-title a {
+            color: #111827;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+            .top-product-title a:hover {
+                color: #6366f1;
+            }
+
+    .top-product-price {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .price-current {
+        font-size: 1.75rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ec4899, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .price-original {
+        font-size: 1.1rem;
+        color: #9ca3af;
+        text-decoration: line-through;
+    }
+
+    .top-product-actions {
+        margin-top: auto;
+    }
+
+    .btn-view-product {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.75rem;
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white;
+        text-decoration: none;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-view-product::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-view-product:hover::before {
+            left: 100%;
+        }
+
+        .btn-view-product:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-view-product i {
+            transition: transform 0.3s ease;
+        }
+
+        .btn-view-product:hover i {
+            transform: translateX(5px);
+        }
+
+    .top-product-decoration {
+        position: absolute;
+        bottom: -50px;
+        right: -50px;
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1));
+        border-radius: 50%;
+        z-index: 1;
+    }
+
+        .top-product-decoration::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.1));
+            border-radius: 50%;
+        }
+
+    
+    @@media (max-width: 768px) {
+        .top-product-card
+
+    {
+        margin-bottom: 2rem;
+        height: auto; 
+    }
+
+    .top-product-image {
+        height: 220px;
+    }
+
+    .price-current {
+        font-size: 1.5rem;
+    }
+
+    }
+
+   
+    @@keyframes pulse {
+        0%, 100%
+
+    {
+        transform: rotate(45deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(45deg) scale(1.2);
+    }
+
+    }
+
+    .top-product-badge i {
+        animation: pulse 2s infinite;
+    }
+</style>

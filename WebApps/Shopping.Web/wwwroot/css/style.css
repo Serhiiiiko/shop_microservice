@@ -1,9 +1,4 @@
-/*
-** Modern E-commerce Theme for AspnetRunBasics
-** Version 2.0
-*/
 
-/* CSS Variables for easy customization */
 :root {
     --primary-color: #6366f1;
     --primary-dark: #4f46e5;
@@ -251,7 +246,6 @@ nav.navbar {
         box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
     }
 
-/* Modern Cards */
 .card {
     border: none;
     border-radius: var(--border-radius);
@@ -292,7 +286,7 @@ nav.navbar {
     margin-bottom: 1rem;
 }
 
-/* Price Styling */
+
 .bloc_left_price,
 .price {
     font-size: 1.75rem;
@@ -310,7 +304,7 @@ nav.navbar {
     opacity: 0.7;
 }
 
-/* Modern Carousel */
+
 .carousel {
     border-radius: var(--border-radius);
     overflow: hidden;
@@ -340,7 +334,7 @@ nav.navbar {
     border-radius: 6px;
 }
 
-/* Category List */
+
 .category_block {
     list-style: none;
     padding: 0;
@@ -370,7 +364,6 @@ nav.navbar {
                 color: white;
             }
 
-/* Modern Badge */
 .badge {
     padding: 0.4rem 0.8rem;
     border-radius: 20px;
@@ -383,7 +376,7 @@ nav.navbar {
     color: white;
 }
 
-/* Table Styling */
+
 .table {
     border-radius: var(--border-radius);
     overflow: hidden;
@@ -399,7 +392,7 @@ nav.navbar {
     background-color: rgba(99, 102, 241, 0.05);
 }
 
-/* Footer */
+
 footer {
     background: linear-gradient(135deg, var(--dark-bg), #1f2937);
     color: white;
@@ -426,7 +419,7 @@ footer {
             text-decoration: none;
         }
 
-/* Animations */
+
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -443,7 +436,7 @@ footer {
     animation: fadeInUp 0.6s ease-out;
 }
 
-/* Breadcrumb Modern */
+
 .breadcrumb {
     background: transparent;
     padding: 1rem 0;
@@ -460,12 +453,11 @@ footer {
     color: var(--text-secondary);
 }
 
-/* Product Grid */
+
 .row {
     margin-bottom: 2rem;
 }
 
-/* Quantity Controls */
 .quantity-left-minus,
 .quantity-right-plus {
     width: 40px;
@@ -491,7 +483,7 @@ footer {
     transition: var(--transition);
 }
 
-/* Fix for select elements to show full text */
+
 .custom-select {
     height: auto;
     min-height: 45px;
@@ -507,7 +499,7 @@ footer {
         outline: none;
     }
 
-/* Product Detail Enhancements */
+
 .add_to_cart_block {
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));
     border-radius: var(--border-radius);
