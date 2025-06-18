@@ -103,11 +103,34 @@ public class RegisterModel : PageModel
             await _events.RaiseAsync(new UserLoginSuccessEvent(user.UserName, user.Id, user.UserName));
             await _signInManager.SignInAsync(user, isPersistent: false);
 
-            if (_interaction.IsValidReturnUrl(Input.ReturnUrl) || Url.IsLocalUrl(Input.ReturnUrl))
+            // ВАЖНОЕ ИЗМЕНЕНИЕ: Проверяем returnUrl более тщательно
+            if (!string.IsNullOrEmpty(Input.ReturnUrl))
             {
-                return Redirect(Input.ReturnUrl ?? "~/");
+                // Если это URL от Shopping.Web, перенаправляем туда
+                if (Input.ReturnUrl.Contains("/signin-oidc") ||
+                    Input.ReturnUrl.Contains("shopping.web") ||
+                    Input.ReturnUrl.Contains("localhost:6065") ||
+                    Input.ReturnUrl.Contains("localhost:6005") ||
+                    Input.ReturnUrl.Contains("localhost:5055") ||
+                    Input.ReturnUrl.Contains("localhost:5005"))
+                {
+                    return Redirect(Input.ReturnUrl);
+                }
+
+                // Если это валидный URL для Identity Server
+                if (_interaction.IsValidReturnUrl(Input.ReturnUrl))
+                {
+                    return Redirect(Input.ReturnUrl);
+                }
+
+                // Если это локальный URL
+                if (Url.IsLocalUrl(Input.ReturnUrl))
+                {
+                    return Redirect(Input.ReturnUrl);
+                }
             }
 
+            // По умолчанию остаемся на Identity Server
             return Redirect("~/");
         }
 

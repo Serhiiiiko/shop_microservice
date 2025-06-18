@@ -33,6 +33,7 @@ builder.Services.AddAuthentication(options =>
 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 {
     options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.Cookie.Name = "shopping.web";
 })
 .AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, options =>
 {
@@ -72,6 +73,11 @@ builder.Services.AddAuthentication(options =>
         RoleClaimType = "role"
     };
 
+    // Configure callback path
+    options.CallbackPath = "/signin-oidc";
+    options.SignedOutCallbackPath = "/signout-callback-oidc";
+    options.RemoteSignOutPath = "/signout-oidc";
+
     // Handle events
     options.Events = new OpenIdConnectEvents
     {
@@ -82,12 +88,33 @@ builder.Services.AddAuthentication(options =>
             {
                 context.ProtocolMessage.IssuerAddress = context.ProtocolMessage.IssuerAddress.Replace(authority, publicAuthority);
             }
+
             return Task.CompletedTask;
         },
         OnRemoteFailure = context =>
         {
             context.Response.Redirect("/");
             context.HandleResponse();
+            return Task.CompletedTask;
+        },
+        OnSignedOutCallbackRedirect = context =>
+        {
+            context.Response.Redirect("/");
+            context.HandleResponse();
+            return Task.CompletedTask;
+        },
+        OnRedirectToIdentityProviderForSignOut = context =>
+        {
+            context.Properties.RedirectUri = "/";
+            return Task.CompletedTask;
+        },
+        OnTokenResponseReceived = context =>
+        {
+            // ѕосле получени€ токенов, убеждаемс€ что перенаправление идет на главную
+            if (string.IsNullOrEmpty(context.Properties?.RedirectUri))
+            {
+                context.Properties.RedirectUri = "/";
+            }
             return Task.CompletedTask;
         }
     };
@@ -145,5 +172,16 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+// ƒобавл€ем маршрут по умолчанию дл€ signin-oidc
+app.Map("/signin-oidc", async context =>
+{
+    // Ёто будет обработано OpenID Connect middleware
+    // ѕосле обработки перенаправл€ем на главную
+    if (context.User?.Identity?.IsAuthenticated == true)
+    {
+        context.Response.Redirect("/");
+    }
+});
 
 app.Run();

@@ -14,11 +14,29 @@ public class RegisterModel : PageModel
 
     public IActionResult OnGet(string returnUrl = "/")
     {
-        // Redirect directly to Identity Server's registration page
+        // Ensure we have a proper return URL
+        if (string.IsNullOrEmpty(returnUrl) || returnUrl == "/Account/Register")
+        {
+            returnUrl = "/";
+        }
+
+        // Get URLs from configuration
         var identityServerUrl = _configuration["IdentityServer:Authority"];
         var publicUrl = _configuration["IdentityServer:PublicAuthority"] ?? identityServerUrl;
 
-        var registerUrl = $"{publicUrl}/Account/Register/Register?returnUrl={Uri.EscapeDataString(returnUrl)}";
+        // Get the current host URL
+        var request = HttpContext.Request;
+        var currentHost = request.Host.Value;
+        var scheme = request.Scheme;
+
+        // Build the callback URL that Identity Server should use after registration
+        var callbackUrl = $"{scheme}://{currentHost}/signin-oidc";
+
+        // Encode the full return path
+        var fullReturnUrl = Uri.EscapeDataString(callbackUrl);
+
+        // Build the registration URL
+        var registerUrl = $"{publicUrl}/Account/Register/Register?returnUrl={fullReturnUrl}";
 
         return Redirect(registerUrl);
     }

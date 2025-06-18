@@ -27,10 +27,10 @@ public class Index : PageModel
     private readonly IIdentityProviderStore _identityProviderStore;
 
     public ViewModel View { get; set; } = default!;
-        
+
     [BindProperty]
     public InputModel Input { get; set; } = default!;
-        
+
     public Index(
         IIdentityServerInteractionService interaction,
         IAuthenticationSchemeProvider schemeProvider,
@@ -50,7 +50,7 @@ public class Index : PageModel
     public async Task<IActionResult> OnGet(string? returnUrl)
     {
         await BuildModelAsync(returnUrl);
-            
+
         if (View.IsExternalLoginOnly)
         {
             // we only have one option for logging in and it's an external provider
@@ -59,7 +59,7 @@ public class Index : PageModel
 
         return Page();
     }
-        
+
     public async Task<IActionResult> OnPost()
     {
         // check if we are in the context of an authorization request
@@ -131,13 +131,24 @@ public class Index : PageModel
                 }
                 else
                 {
+                    // ВАЖНОЕ ИЗМЕНЕНИЕ: Проверяем, является ли это возвратом в Shopping.Web
+                    if (Input.ReturnUrl.Contains("/signin-oidc") ||
+                        Input.ReturnUrl.Contains("shopping.web") ||
+                        Input.ReturnUrl.Contains("localhost:6065") ||
+                        Input.ReturnUrl.Contains("localhost:6005") ||
+                        Input.ReturnUrl.Contains("localhost:5055") ||
+                        Input.ReturnUrl.Contains("localhost:5005"))
+                    {
+                        return Redirect(Input.ReturnUrl);
+                    }
+
                     // user might have clicked on a malicious link - should be logged
                     throw new ArgumentException("invalid return URL");
                 }
             }
 
             const string error = "invalid credentials";
-            await _events.RaiseAsync(new UserLoginFailureEvent(Input.Username, error, clientId:context?.Client.ClientId));
+            await _events.RaiseAsync(new UserLoginFailureEvent(Input.Username, error, clientId: context?.Client.ClientId));
             Telemetry.Metrics.UserLoginFailure(context?.Client.ClientId, IdentityServerConstants.LocalIdentityProvider, error);
             ModelState.AddModelError(string.Empty, LoginOptions.InvalidCredentialsErrorMessage);
         }
@@ -153,7 +164,7 @@ public class Index : PageModel
         {
             ReturnUrl = returnUrl
         };
-            
+
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
         if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null)
         {
@@ -169,7 +180,7 @@ public class Index : PageModel
 
             if (!local)
             {
-                View.ExternalProviders = new[] { new ViewModel.ExternalProvider ( authenticationScheme: context.IdP ) };
+                View.ExternalProviders = new[] { new ViewModel.ExternalProvider(authenticationScheme: context.IdP) };
             }
 
             return;

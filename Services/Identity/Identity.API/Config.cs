@@ -69,19 +69,29 @@ public static class Config
                 "https://localhost:6065/signin-oidc",
                 "http://localhost:6005/signin-oidc",
                 "https://shopping.web:8081/signin-oidc",
-                "http://shopping.web:8080/signin-oidc"
+                "http://shopping.web:8080/signin-oidc",
+                "https://localhost:5055/signin-oidc",
+                "http://localhost:5005/signin-oidc"
             },
             PostLogoutRedirectUris = {
                 "https://localhost:6065/signout-callback-oidc",
                 "http://localhost:6005/signout-callback-oidc",
                 "https://shopping.web:8081/signout-callback-oidc",
-                "http://shopping.web:8080/signout-callback-oidc"
+                "http://shopping.web:8080/signout-callback-oidc",
+                "https://localhost:5055/signout-callback-oidc",
+                "http://localhost:5005/signout-callback-oidc",
+                "https://localhost:6065/",
+                "http://localhost:6005/",
+                "https://localhost:5055/",
+                "http://localhost:5005/"
             },
             AllowedCorsOrigins = {
                 "https://localhost:6065",
                 "http://localhost:6005",
                 "https://shopping.web:8081",
-                "http://shopping.web:8080"
+                "http://shopping.web:8080",
+                "https://localhost:5055",
+                "http://localhost:5005"
             },
 
             AllowOfflineAccess = true,
