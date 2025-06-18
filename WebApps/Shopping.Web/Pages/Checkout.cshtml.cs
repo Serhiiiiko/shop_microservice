@@ -3,24 +3,34 @@ using System.Security.Claims;
 
 namespace Shopping.Web.Pages
 {
-    [Microsoft.AspNetCore.Authorization.Authorize]
-    public class CheckoutModel
-        (IBasketService basketService, ILogger<CheckoutModel> logger)
+    [Microsoft.AspNetCore.Authorization.Authorize] 
+    public class CheckoutModel(IBasketService basketService, ILogger<CheckoutModel> logger)
         : PageModel
     {
         [BindProperty]
         public BasketCheckoutModel Order { get; set; } = default!;
+
         public ShoppingCartModel Cart { get; set; } = default!;
 
         public async Task<IActionResult> OnGetAsync()
         {
             Cart = await basketService.LoadUserBasket(User);
+
+            // Pre-fill form with user information from claims
+            Order = new BasketCheckoutModel
+            {
+                UserName = User.Identity?.Name ?? User.FindFirst("name")?.Value ?? "",
+                EmailAddress = User.FindFirst(ClaimTypes.Email)?.Value ?? User.FindFirst("email")?.Value ?? "",
+                FirstName = User.FindFirst("given_name")?.Value ?? User.FindFirst(ClaimTypes.GivenName)?.Value ?? "",
+                LastName = User.FindFirst("family_name")?.Value ?? User.FindFirst(ClaimTypes.Surname)?.Value ?? ""
+            };
+
             return Page();
         }
 
         public async Task<IActionResult> OnPostCheckOutAsync()
         {
-            logger.LogInformation("Checkout button clicked");
+            logger.LogInformation("Checkout process started");
 
             Cart = await basketService.LoadUserBasket(User);
 
@@ -29,28 +39,21 @@ namespace Shopping.Web.Pages
                 return Page();
             }
 
-            // Получаем ID пользователя из claim "sub" (subject)
-            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
+            // ВАЖНО: Всегда используем имя из токена, а НЕ из формы
+            Order.UserName = User.Identity?.Name ?? User.FindFirst("name")?.Value ?? "Guest";
+
+            // Убедимся, что email тоже корректный
+            if (string.IsNullOrEmpty(Order.EmailAddress))
             {
-                logger.LogError("User ID claim not found");
-                return Page();
+                Order.EmailAddress = User.FindFirst(ClaimTypes.Email)?.Value ?? User.FindFirst("email")?.Value ?? "";
             }
 
-            var userId = userIdClaim.Value;
-            logger.LogInformation("Checkout for user ID: {UserId}", userId);
-
-            // Проверяем, является ли userId валидным Guid
-            if (!Guid.TryParse(userId, out var customerId))
-            {
-                logger.LogError("Invalid user ID format: {UserId}", userId);
-                ModelState.AddModelError("", "Invalid user ID format");
-                return Page();
-            }
-
-            Order.CustomerId = customerId;
-            Order.UserName = Cart.UserName;
+            // Generate a temporary CustomerId (will be replaced by actual customer ID in the handler)
+            Order.CustomerId = Guid.Empty; // This will be ignored in the handler
             Order.TotalPrice = Cart.TotalPrice;
+
+            logger.LogInformation("Processing checkout for user {UserName} with email {Email}",
+                Order.UserName, Order.EmailAddress);
 
             await basketService.CheckoutBasket(new CheckoutBasketRequest(Order));
 

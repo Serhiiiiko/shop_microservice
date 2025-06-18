@@ -4,37 +4,54 @@ using System.Security.Claims;
 namespace Shopping.Web.Pages
 {
     [Microsoft.AspNetCore.Authorization.Authorize]
-    public class OrderListModel
-        (IOrderingService orderingService, ILogger<OrderListModel> logger)
+    public class OrderListModel(IOrderingService orderingService, IBasketService basketService, ILogger<OrderListModel> logger)
         : PageModel
     {
-        public IEnumerable<OrderModel> Orders { get; set; } = default!;
+        public IEnumerable<OrderModel> Orders { get; set; } = [];
 
         public async Task<IActionResult> OnGetAsync()
         {
-            // Получаем ID пользователя из claim "sub" (subject)
-            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
-            if (userIdClaim == null)
-            {
-                logger.LogError("User ID claim not found");
-                Orders = new List<OrderModel>();
-                return Page();
-            }
-
-            var userId = userIdClaim.Value;
-            var customerId = Guid.Parse(userId);
-
-            logger.LogInformation("Getting orders for customer ID: {CustomerId}", customerId);
-
             try
             {
-                var response = await orderingService.GetOrdersByCustomer(customerId);
-                Orders = response.Orders;
+                // Get user's email from claims
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value
+                    ?? User.FindFirst("email")?.Value;
+
+                var userName = User.Identity?.Name
+                    ?? User.FindFirst(ClaimTypes.Name)?.Value
+                    ?? User.FindFirst("name")?.Value;
+
+                if (string.IsNullOrEmpty(userEmail) && !string.IsNullOrEmpty(userName))
+                {
+                    // If no email in claims, try to get orders by name
+                    logger.LogInformation("No email found in claims, searching orders by name: {UserName}", userName);
+                    var ordersByName = await orderingService.GetOrdersByName(userName);
+                    Orders = ordersByName.Orders;
+                }
+                else if (!string.IsNullOrEmpty(userEmail))
+                {
+                    // Get orders by email through the order name (which contains username)
+                    // In a real app, we'd have a GetOrdersByEmail endpoint
+                    logger.LogInformation("Searching orders for user: {UserName} with email: {Email}", userName, userEmail);
+
+                    if (!string.IsNullOrEmpty(userName))
+                    {
+                        var ordersByName = await orderingService.GetOrdersByName(userName);
+                        Orders = ordersByName.Orders;
+                    }
+                }
+                else
+                {
+                    logger.LogWarning("No user identification found in claims");
+                    Orders = [];
+                }
+
+                logger.LogInformation("Loaded {Count} orders for user", Orders.Count());
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error getting orders for customer {CustomerId}", customerId);
-                Orders = new List<OrderModel>();
+                logger.LogError(ex, "Error loading orders");
+                Orders = [];
             }
 
             return Page();
